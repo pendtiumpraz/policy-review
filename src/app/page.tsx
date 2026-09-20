@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
+import { ShieldIcon, PlugIcon, ChartIcon, BookIcon, EditIcon, PaletteIcon, BoltIcon, LockIcon, TargetIcon } from '@/components/icons';
 
 const G = '#0f9d58';
 
@@ -109,17 +110,17 @@ export default async function LandingPage() {
         <p style={{ textAlign: 'center', color: '#4b6156', marginBottom: 40 }}>Semua yang kamu butuhkan untuk meninjau kebijakan tanpa kebocoran data.</p>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
           {[
-            ['🛡️', 'Multi-tenant terisolasi', 'Data, kunci AI, dan hasil review tiap organisasi benar-benar terpisah.'],
-            ['🔌', 'AI-agnostic + BYOK', 'Provider & model dikelola superadmin. Bawa kunci sendiri atau pakai kunci platform.'],
-            ['📊', 'Kuota token', 'Kontrol pemakaian token per tenant, tercatat otomatis tiap pemanggilan AI.'],
-            ['📚', 'Regulasi in & external', 'Unggah UU/peraturan eksternal ataupun kebijakan internal, lengkap dengan checklist.'],
-            ['✍️', 'Hasil editable', 'Output AI diparsing jadi tampilan review yang bisa kamu edit dan simpan ulang.'],
-            ['🎨', 'White-label', 'Warna brand & logo tiap tenant menyesuaikan identitas organisasimu.'],
-          ].map(([ic, t, d]) => (
-            <div key={t} className="feat-card">
-              <div className="feat-ic">{ic}</div>
-              <h3>{t}</h3>
-              <p>{d}</p>
+            [ShieldIcon, 'Multi-tenant terisolasi', 'Data, kunci AI, dan hasil review tiap organisasi benar-benar terpisah.'],
+            [PlugIcon, 'AI-agnostic + BYOK', 'Provider & model dikelola superadmin. Bawa kunci sendiri atau pakai kunci platform.'],
+            [ChartIcon, 'Kuota token', 'Kontrol pemakaian token per tenant, tercatat otomatis tiap pemanggilan AI.'],
+            [BookIcon, 'Regulasi in & external', 'Unggah UU/peraturan eksternal ataupun kebijakan internal, lengkap dengan checklist.'],
+            [EditIcon, 'Hasil editable', 'Output AI diparsing jadi tampilan review yang bisa kamu edit dan simpan ulang.'],
+            [PaletteIcon, 'White-label', 'Warna brand & logo tiap tenant menyesuaikan identitas organisasimu.'],
+          ].map(([Icon, t, d]) => (
+            <div key={t as string} className="feat-card">
+              <div className="feat-ic"><Icon /></div>
+              <h3>{t as string}</h3>
+              <p>{d as string}</p>
             </div>
           ))}
         </div>
@@ -165,7 +166,8 @@ export default async function LandingPage() {
         .pill { display:inline-block; padding:6px 14px; border-radius:100px; background:#e4f4ea; color:#0f9d58; font-size:12px; font-weight:700; }
         .feat-card { background:#fff; border:1px solid #e5efe9; border-radius:16px; padding:24px; transition: transform .18s, box-shadow .18s; }
         .feat-card:hover { transform: translateY(-4px); box-shadow:0 20px 40px -24px rgba(15,157,88,0.35); }
-        .feat-ic { font-size:26px; margin-bottom:14px; }
+        .feat-ic { width: 46px; height: 46px; border-radius: 12px; background: #e4f4ea; color: #0f9d58; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
+        .feat-ic svg { width: 22px; height: 22px; }
         .feat-card h3 { margin:0 0 8px; font-size:16px; font-weight:800; }
         .feat-card p { margin:0; color:#5b6f64; line-height:1.6; font-size:14px; }
         .hero-glow { position:absolute; width:420px; height:420px; background:radial-gradient(circle, rgba(25,194,107,0.35), transparent 65%); filter:blur(20px); top:-40px; right:-30px; }

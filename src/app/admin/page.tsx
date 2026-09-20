@@ -4,6 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client-api';
+import { AiIcon, ReviewIcon, TeamIcon } from '@/components/icons';
 
 interface Provider { id: string; code: string; name: string; enabled: boolean; base_url: string | null; }
 interface Model { id: string; providerId: string; providerName: string; name: string; modelId: string; enabled: boolean; }
@@ -12,10 +13,10 @@ interface Key { id: string; providerId: string; }
 
 type Tab = 'providers' | 'models' | 'tenants';
 
-const MENU: { key: Tab; label: string; color: string; icon: string }[] = [
-  { key: 'providers', label: 'Provider AI', color: '#8b5cf6', icon: 'M12 2a4 4 0 014 4l1 1 3-1-1 3 1 1a4 4 0 01-4 4l-1-1-3 1 1-3-1-1a4 4 0 014-4zm0-2h0zM5 19l3-2 2 3 2-3 3 2-2-4 4-2-4-2 2-4-3 2-2-3-2 3-3-2 2 4-4 2 4 2z' },
-  { key: 'models', label: 'Model', color: '#3b82f6', icon: 'M4 7v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2h-6l-2-2H6c-1.1 0-2 .9-2 2z' },
-  { key: 'tenants', label: 'Tenant', color: '#f59e0b', icon: 'M4 4h7v7H4V4zm9 0h7v7h-7V4zM4 13h7v7H4v-7zm9 0h7v7h-7v-7z' },
+const MENU: { key: Tab; label: string; Icon: typeof AiIcon }[] = [
+  { key: 'providers', label: 'Provider AI', Icon: AiIcon },
+  { key: 'models', label: 'Model', Icon: ReviewIcon },
+  { key: 'tenants', label: 'Tenant', Icon: TeamIcon },
 ];
 
 export default function AdminPage() {
@@ -88,7 +89,7 @@ export default function AdminPage() {
         <nav>
           {MENU.map((m) => (
             <button key={m.key} className={`menu-item ${tab === m.key ? 'active' : ''}`} style={{ width: '100%', background: 'none', border: 'none', textAlign: 'left' }} onClick={() => { setTab(m.key); setTrashMode(false); }}>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={m.color} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d={m.icon} /></svg>
+              <m.Icon />
               <span>{m.label}</span>
             </button>
           ))}

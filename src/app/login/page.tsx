@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { BoltIcon, LockIcon, TargetIcon } from '@/components/icons';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -41,13 +42,15 @@ export default function LoginPage() {
           </p>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
             {[
-              ['⚡', 'Review AI dalam sekali klik'],
-              ['🔒', 'Isolasi penuh antar tenant'],
-              ['🎯', 'Hasil audit yang bisa diedit'],
-            ].map(([ic, t]) => (
-              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#fff', fontSize: 14, fontWeight: 600 }}>
-                <span style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{ic}</span>
-                {t}
+              [BoltIcon, 'Review AI dalam sekali klik'],
+              [LockIcon, 'Isolasi penuh antar tenant'],
+              [TargetIcon, 'Hasil audit yang bisa diedit'],
+            ].map(([Icon, t]) => (
+              <div key={t as string} style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#fff', fontSize: 14, fontWeight: 600 }}>
+                <span style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <Icon />
+                </span>
+                {t as string}
               </div>
             ))}
           </div>

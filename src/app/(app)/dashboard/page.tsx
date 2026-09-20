@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/client-api';
+import { DocIcon } from '@/components/icons';
 
 interface Review { id: string; title: string; doc_type: string; risk_score: number; status: string; created_at: string; }
 interface Regulation { id: string; kind: string; }
@@ -73,7 +74,7 @@ export default function DashboardPage() {
           <div className="empty-state">Memuat...</div>
         ) : reviews.length === 0 ? (
           <div className="empty-state">
-            <div style={{ fontSize: 40 }}>📄</div>
+            <div className="feat-ic" style={{ width: 52, height: 52, borderRadius: 14 }}><DocIcon /></div>
             <h3>Belum ada review</h3>
             <p>Mulai review kebijakan atau SOP perusahaan Anda.</p>
           </div>
