@@ -49,8 +49,11 @@ export function Logo({ size = 30, tone = 'brand' }: { size?: number; tone?: 'bra
   const check = tone === 'light' ? '#0f9d58' : '#fff';
   return (
     <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
-      <path d="M16 2.6l11 4.3v9.6c0 6.6-4.4 11.3-11 13C9.4 27.8 5 23.1 5 16.5V6.9z" fill={fill} />
-      <path d="M11.2 16.1l3.3 3.2 6.4-6.6" stroke={check} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+      <path
+        d="M16 1.8c.9 0 1.8.4 2.5 1.1l1.9 1.9c.3.3.7.5 1.1.5l2.7.1c.9 0 1.8.5 2.2 1.3.4.8.4 1.8 0 2.6l-1.1 2.5c-.1.3-.1.7 0 1l1.1 2.5c.4.8.4 1.8 0 2.6-.4.8-1.3 1.3-2.2 1.3l-2.7.1c-.4 0-.8.2-1.1.5l-1.9 1.9c-.7.7-1.6 1.1-2.5 1.1s-1.8-.4-2.5-1.1l-1.9-1.9c-.3-.3-.7-.5-1.1-.5l-2.7-.1c-.9 0-1.8-.5-2.2-1.3-.4-.8-.4-1.8 0-2.6l1.1-2.5c.1-.3.1-.7 0-1L4.5 6.4c-.4-.8-.4-1.8 0-2.6C4.9 3 5.8 2.5 6.7 2.5l2.7-.1c.4 0 .8-.2 1.1-.5L12.4.7C13.1.2 14.1.3 16 1.8z"
+        fill={fill}
+      />
+      <path d="M11.6 16.2l2.9 2.9 6-6.2" stroke={check} strokeWidth="2.8" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }

@@ -8,7 +8,7 @@ import { AiIcon, ReviewIcon, TeamIcon, EditIcon, TrashIcon, RestoreIcon, KeyIcon
 
 interface Provider { id: string; code: string; name: string; enabled: boolean; base_url: string | null; }
 interface Model { id: string; providerId: string; providerName: string; name: string; modelId: string; enabled: boolean; }
-interface Tenant { id: string; name: string; slug: string; token_quota: number; brand_primary_color: string; }
+interface Tenant { id: string; name: string | null; slug: string | null; token_quota: number | null; brand_primary_color: string | null; }
 interface Key { id: string; providerId: string; }
 
 type Tab = 'providers' | 'models' | 'tenants';
@@ -18,6 +18,11 @@ const MENU: { key: Tab; label: string; Icon: typeof AiIcon }[] = [
   { key: 'models', label: 'Model', Icon: ReviewIcon },
   { key: 'tenants', label: 'Tenant', Icon: TeamIcon },
 ];
+
+function fmtQuota(n: number | null | undefined): string {
+  if (n == null || n <= 0) return '∞';
+  return n.toLocaleString();
+}
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -37,19 +42,23 @@ export default function AdminPage() {
   const [keyFor, setKeyFor] = useState<Provider | null>(null);
 
   const load = useCallback(async () => {
-    const [p, pt, m, mt, t, tt, k] = await Promise.all([
-      api<{ data: Provider[] }>('/api/ai/providers'),
-      api<{ data: Provider[] }>('/api/ai/providers?trashed=1'),
-      api<{ data: Model[] }>('/api/ai/models'),
-      api<{ data: Model[] }>('/api/ai/models?trashed=1'),
-      api<{ data: Tenant[] }>('/api/tenants'),
-      api<{ data: Tenant[] }>('/api/tenants?trashed=1'),
-      api<{ data: Key[] }>('/api/ai/keys'),
-    ]);
-    setProviders(p.data); setProvidersTrash(pt.data);
-    setModels(m.data); setModelsTrash(mt.data);
-    setTenants(t.data); setTenantsTrash(tt.data);
-    setKeys(k.data);
+    try {
+      const [p, pt, m, mt, t, tt, k] = await Promise.all([
+        api<{ data: Provider[] }>('/api/ai/providers'),
+        api<{ data: Provider[] }>('/api/ai/providers?trashed=1'),
+        api<{ data: Model[] }>('/api/ai/models'),
+        api<{ data: Model[] }>('/api/ai/models?trashed=1'),
+        api<{ data: Tenant[] }>('/api/tenants'),
+        api<{ data: Tenant[] }>('/api/tenants?trashed=1'),
+        api<{ data: Key[] }>('/api/ai/keys'),
+      ]);
+      setProviders(p.data); setProvidersTrash(pt.data);
+      setModels(m.data); setModelsTrash(mt.data);
+      setTenants(t.data ?? []); setTenantsTrash(tt.data ?? []);
+      setKeys(k.data);
+    } catch (e) {
+      console.error('admin load error', e);
+    }
   }, []);
 
   useEffect(() => {
@@ -173,17 +182,17 @@ export default function AdminPage() {
                   <tbody>
                     {trashMode ? tenantsTrash.map((t) => (
                       <tr key={t.id} style={{ opacity: 0.75 }}>
-                        <td style={{ fontWeight: 600 }}>{t.name}</td><td>{t.slug}</td><td>{t.token_quota === 0 ? '∞' : t.token_quota.toLocaleString()}</td>
-                        <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brand_primary_color }} /></td>
+                        <td style={{ fontWeight: 600 }}>{t.name ?? '—'}</td><td>{t.slug ?? '—'}</td><td>{fmtQuota(t.token_quota)}</td>
+                        <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brand_primary_color || '#0f9d58' }} /></td>
                         <td /><td><div className="row-actions"><button className="icon-btn" title="Restore" onClick={() => restoreTenant(t.id)}><RestoreIcon /></button><button className="icon-btn danger" title="Hapus permanen" onClick={() => forceTenant(t.id)}><TrashIcon /></button></div></td>
                       </tr>
                     )) : tenants.map((t) => (
                       <tr key={t.id}>
-                        <td style={{ fontWeight: 600 }}>{t.name}</td><td>{t.slug}</td><td>{t.token_quota === 0 ? '∞' : t.token_quota.toLocaleString()}</td>
-                        <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brand_primary_color }} /></td>
+                        <td style={{ fontWeight: 600 }}>{t.name ?? '—'}</td><td>{t.slug ?? '—'}</td><td>{fmtQuota(t.token_quota)}</td>
+                        <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brand_primary_color || '#0f9d58' }} /></td>
                         <td /><td>
                           <div className="row-actions">
-                            <button className="icon-btn" title="Set kuota" onClick={async () => { const q = prompt('Kuota token (0 = tanpa batas):', String(t.token_quota)); if (q === null) return; await api(`/api/tenants/${t.id}`, { method: 'PATCH', body: { tokenQuota: Number(q) || 0 } }); load(); }}><EditIcon /></button>
+                            <button className="icon-btn" title="Set kuota" onClick={async () => { const q = prompt('Kuota token (0 = tanpa batas):', String(t.token_quota ?? 0)); if (q === null) return; await api(`/api/tenants/${t.id}`, { method: 'PATCH', body: { tokenQuota: Number(q) || 0 } }); load(); }}><EditIcon /></button>
                             <button className="icon-btn danger" title="Hapus" onClick={() => delTenant(t.id)}><TrashIcon /></button>
                           </div>
                         </td>
