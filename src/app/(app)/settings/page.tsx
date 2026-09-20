@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { api } from '@/lib/client-api';
 
-interface Settings { id: string; name: string; slug: string; brand_primary_color: string; brand_logo_url: string | null; token_quota: number; }
+interface Settings { id: string; name: string; slug: string; brandPrimaryColor: string; brandLogoUrl: string | null; tokenQuota: number; }
 
 export default function SettingsPage() {
   const [s, setS] = useState<Settings | null>(null);
@@ -17,8 +17,8 @@ export default function SettingsPage() {
     api<{ data: Settings }>('/api/settings').then((r) => {
       setS(r.data);
       setName(r.data.name);
-      setColor(r.data.brand_primary_color);
-      setLogo(r.data.brand_logo_url || '');
+      setColor(r.data.brandPrimaryColor);
+      setLogo(r.data.brandLogoUrl || '');
     }).catch(() => {});
   }, []);
 
@@ -59,7 +59,7 @@ export default function SettingsPage() {
           </button>
         </div>
       </div>
-      <div className="form-hint" style={{ marginTop: 12 }}>Kuota token tenant diatur oleh superadmin ({s.token_quota === 0 ? 'tanpa batas' : s.token_quota.toLocaleString()}).</div>
+      <div className="form-hint" style={{ marginTop: 12 }}>Kuota token tenant diatur oleh superadmin ({s.tokenQuota === 0 ? 'tanpa batas' : s.tokenQuota.toLocaleString()}).</div>
     </div>
   );
 }

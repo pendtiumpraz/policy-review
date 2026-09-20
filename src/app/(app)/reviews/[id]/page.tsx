@@ -8,12 +8,12 @@ import type { ReviewResult, RegulationChecklistEntry } from '@/lib/types';
 interface Review {
   id: string;
   title: string;
-  doc_type: string;
+  docType: string;
   status: string;
-  risk_score: number;
-  error_message: string | null;
-  review_summary: ReviewResult | null;
-  regulation_checklist: RegulationChecklistEntry[];
+  riskScore: number;
+  errorMessage: string | null;
+  reviewSummary: ReviewResult | null;
+  regulationChecklist: RegulationChecklistEntry[];
 }
 
 const SECTION_STATUS = [
@@ -57,8 +57,8 @@ export default function ReviewDetailPage() {
     (async () => {
       const res = await api<{ data: Review }>(`/api/reviews/${params.id}`);
       setReview(res.data);
-      setResult(res.data.review_summary);
-      setChecklist(res.data.regulation_checklist || []);
+      setResult(res.data.reviewSummary);
+      setChecklist(res.data.regulationChecklist || []);
       setTitle(res.data.title);
       setLoading(false);
     })().catch(() => setLoading(false));
@@ -97,7 +97,7 @@ export default function ReviewDetailPage() {
         <button className="btn btn-secondary mb-4" onClick={() => router.push('/reviews')}>Kembali</button>
         <div className="empty-state">
           <h3>Hasil tidak ditemukan</h3>
-          <p>{review?.error_message || 'Review ini tidak tersedia.'}</p>
+          <p>{review?.errorMessage || 'Review ini tidak tersedia.'}</p>
         </div>
       </div>
     );
@@ -110,7 +110,7 @@ export default function ReviewDetailPage() {
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 20 }}>
         <button className="btn btn-secondary" onClick={() => router.push('/reviews')}>Kembali</button>
         <input className="form-input" style={{ flex: 1, fontWeight: 700 }} value={title} onChange={(e) => setTitle(e.target.value)} />
-        <span className="badge badge-blue">{review.doc_type.replace(/_/g, ' ')}</span>
+        <span className="badge badge-blue">{review.docType.replace(/_/g, ' ')}</span>
         <button className="btn btn-primary" onClick={save} disabled={saving}>
           {saving ? 'Menyimpan...' : saved ? 'Tersimpan ✓' : 'Simpan Perubahan'}
         </button>

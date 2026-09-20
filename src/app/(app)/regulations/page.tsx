@@ -11,8 +11,8 @@ interface Regulation {
   source: string | null;
   description: string | null;
   checklist: { id: string; text: string }[];
-  file_name: string | null;
-  created_at: string;
+  fileName: string | null;
+  createdAt: string;
 }
 
 export default function RegulationsPage() {

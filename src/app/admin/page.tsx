@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client-api';
 import { AiIcon, ReviewIcon, TeamIcon, EditIcon, TrashIcon, RestoreIcon, KeyIcon, PowerIcon, PlusIcon, Logo } from '@/components/icons';
 
-interface Provider { id: string; code: string; name: string; enabled: boolean; base_url: string | null; }
+interface Provider { id: string; code: string; name: string; enabled: boolean; baseUrl: string | null; }
 interface Model { id: string; providerId: string; providerName: string; name: string; modelId: string; enabled: boolean; }
-interface Tenant { id: string; name: string | null; slug: string | null; token_quota: number | null; brand_primary_color: string | null; }
+interface Tenant { id: string; name: string | null; slug: string | null; tokenQuota: number | null; brandPrimaryColor: string | null; }
 interface Key { id: string; providerId: string; }
 
 type Tab = 'providers' | 'models' | 'tenants';
@@ -127,13 +127,13 @@ export default function AdminPage() {
                   <tbody>
                     {trashMode ? providersTrash.map((p) => (
                       <tr key={p.id} style={{ opacity: 0.75 }}>
-                        <td style={{ fontWeight: 600 }}>{p.name}</td><td><code>{p.code}</code></td><td style={{ color: 'var(--text-muted)' }}>{p.base_url || '—'}</td><td>—</td>
+                        <td style={{ fontWeight: 600 }}>{p.name}</td><td><code>{p.code}</code></td><td style={{ color: 'var(--text-muted)' }}>{p.baseUrl || '—'}</td><td>—</td>
                         <td><span className="badge badge-gray">Terhapus</span></td>
                         <td /><td><div className="row-actions"><button className="icon-btn" title="Restore" onClick={() => restoreProvider(p.id)}><RestoreIcon /></button><button className="icon-btn danger" title="Hapus permanen" onClick={() => forceProvider(p.id)}><TrashIcon /></button></div></td>
                       </tr>
                     )) : providers.map((p) => (
                       <tr key={p.id}>
-                        <td style={{ fontWeight: 600 }}>{p.name}</td><td><code>{p.code}</code></td><td style={{ color: 'var(--text-muted)' }}>{p.base_url || '—'}</td>
+                        <td style={{ fontWeight: 600 }}>{p.name}</td><td><code>{p.code}</code></td><td style={{ color: 'var(--text-muted)' }}>{p.baseUrl || '—'}</td>
                         <td>{keyByProvider.has(p.id) ? <span className="badge badge-green">Ada</span> : <span className="badge badge-gray">Belum</span>}</td>
                         <td><span className={`badge ${p.enabled ? 'badge-green' : 'badge-gray'}`}>{p.enabled ? 'Aktif' : 'Nonaktif'}</span></td>
                         <td /><td>
@@ -182,17 +182,17 @@ export default function AdminPage() {
                   <tbody>
                     {trashMode ? tenantsTrash.map((t) => (
                       <tr key={t.id} style={{ opacity: 0.75 }}>
-                        <td style={{ fontWeight: 600 }}>{t.name ?? '—'}</td><td>{t.slug ?? '—'}</td><td>{fmtQuota(t.token_quota)}</td>
-                        <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brand_primary_color || '#0f9d58' }} /></td>
+                        <td style={{ fontWeight: 600 }}>{t.name ?? '—'}</td><td>{t.slug ?? '—'}</td><td>{fmtQuota(t.tokenQuota)}</td>
+                        <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brandPrimaryColor || '#0f9d58' }} /></td>
                         <td /><td><div className="row-actions"><button className="icon-btn" title="Restore" onClick={() => restoreTenant(t.id)}><RestoreIcon /></button><button className="icon-btn danger" title="Hapus permanen" onClick={() => forceTenant(t.id)}><TrashIcon /></button></div></td>
                       </tr>
                     )) : tenants.map((t) => (
                       <tr key={t.id}>
-                        <td style={{ fontWeight: 600 }}>{t.name ?? '—'}</td><td>{t.slug ?? '—'}</td><td>{fmtQuota(t.token_quota)}</td>
-                        <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brand_primary_color || '#0f9d58' }} /></td>
+                        <td style={{ fontWeight: 600 }}>{t.name ?? '—'}</td><td>{t.slug ?? '—'}</td><td>{fmtQuota(t.tokenQuota)}</td>
+                        <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brandPrimaryColor || '#0f9d58' }} /></td>
                         <td /><td>
                           <div className="row-actions">
-                            <button className="icon-btn" title="Set kuota" onClick={async () => { const q = prompt('Kuota token (0 = tanpa batas):', String(t.token_quota ?? 0)); if (q === null) return; await api(`/api/tenants/${t.id}`, { method: 'PATCH', body: { tokenQuota: Number(q) || 0 } }); load(); }}><EditIcon /></button>
+                            <button className="icon-btn" title="Set kuota" onClick={async () => { const q = prompt('Kuota token (0 = tanpa batas):', String(t.tokenQuota ?? 0)); if (q === null) return; await api(`/api/tenants/${t.id}`, { method: 'PATCH', body: { tokenQuota: Number(q) || 0 } }); load(); }}><EditIcon /></button>
                             <button className="icon-btn danger" title="Hapus" onClick={() => delTenant(t.id)}><TrashIcon /></button>
                           </div>
                         </td>
@@ -238,7 +238,7 @@ function KeyForm({ provider, onClose, onSaved }: { provider: Provider; onClose: 
 function ProviderForm({ edit, onClose, onSaved }: { edit?: Provider; onClose: () => void; onSaved: () => void }) {
   const [code, setCode] = useState(edit?.code || '');
   const [name, setName] = useState(edit?.name || '');
-  const [baseUrl, setBaseUrl] = useState(edit?.base_url || '');
+  const [baseUrl, setBaseUrl] = useState(edit?.baseUrl || '');
   const onSubmit = () => edit
     ? api(`/api/ai/providers/${edit.id}`, { method: 'PATCH', body: { name, baseUrl: baseUrl || null } })
     : api('/api/ai/providers', { method: 'POST', body: { code, name, baseUrl } });

@@ -8,10 +8,10 @@ import { EyeIcon, TrashIcon, RestoreIcon } from '@/components/icons';
 interface Review {
   id: string;
   title: string;
-  doc_type: string;
-  risk_score: number;
+  docType: string;
+  riskScore: number;
   status: string;
-  created_at: string;
+  createdAt: string;
 }
 
 const STATUS: Record<string, { label: string; cls: string }> = {
@@ -41,7 +41,7 @@ export default function ReviewsPage() {
   useEffect(() => { load(); }, [load]);
 
   const list = (mode === 'active' ? active : trash).filter(
-    (r) => r.title?.toLowerCase().includes(search.toLowerCase()) || r.doc_type?.toLowerCase().includes(search.toLowerCase()),
+    (r) => r.title?.toLowerCase().includes(search.toLowerCase()) || r.docType?.toLowerCase().includes(search.toLowerCase()),
   );
 
   const del = async (id: string) => {
@@ -59,7 +59,7 @@ export default function ReviewsPage() {
     load();
   };
 
-  const avg = active.length ? Math.round(active.reduce((a, r) => a + (r.risk_score || 0), 0) / active.length) : '—';
+  const avg = active.length ? Math.round(active.reduce((a, r) => a + (r.riskScore || 0), 0) / active.length) : '—';
 
   return (
     <div>
@@ -94,10 +94,10 @@ export default function ReviewsPage() {
                 return (
                   <tr key={r.id}>
                     <td style={{ fontWeight: 600 }}>{r.title}</td>
-                    <td><span className="badge badge-blue">{r.doc_type?.replace(/_/g, ' ')}</span></td>
-                    <td><span style={{ fontWeight: 800, fontSize: 16, color: (r.risk_score || 0) >= 70 ? 'var(--success)' : (r.risk_score || 0) >= 40 ? 'var(--warning)' : 'var(--danger)' }}>{r.risk_score || 0}</span></td>
+                    <td><span className="badge badge-blue">{r.docType?.replace(/_/g, ' ')}</span></td>
+                    <td><span style={{ fontWeight: 800, fontSize: 16, color: (r.riskScore || 0) >= 70 ? 'var(--success)' : (r.riskScore || 0) >= 40 ? 'var(--warning)' : 'var(--danger)' }}>{r.riskScore || 0}</span></td>
                     <td><span className={`badge ${s.cls}`}>{s.label}</span></td>
-                    <td style={{ color: 'var(--text-muted)' }}>{new Date(r.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+                    <td style={{ color: 'var(--text-muted)' }}>{new Date(r.createdAt).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
                     <td>
                       <div className="row-actions">
                         {mode === 'active' ? (

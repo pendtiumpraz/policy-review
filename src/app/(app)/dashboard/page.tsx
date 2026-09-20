@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { api } from '@/lib/client-api';
 import { DocIcon } from '@/components/icons';
 
-interface Review { id: string; title: string; doc_type: string; risk_score: number; status: string; created_at: string; }
+interface Review { id: string; title: string; docType: string; riskScore: number; status: string; createdAt: string; }
 interface Regulation { id: string; kind: string; }
 
 export default function DashboardPage() {
@@ -28,7 +28,7 @@ export default function DashboardPage() {
     })().catch(() => setLoading(false));
   }, []);
 
-  const avg = reviews.length ? Math.round(reviews.reduce((a, r) => a + (r.risk_score || 0), 0) / reviews.length) : '—';
+  const avg = reviews.length ? Math.round(reviews.reduce((a, r) => a + (r.riskScore || 0), 0) / reviews.length) : '—';
   const internal = regs.filter((r) => r.kind === 'internal').length;
   const external = regs.filter((r) => r.kind === 'external').length;
 
@@ -86,8 +86,8 @@ export default function DashboardPage() {
                 {reviews.slice(0, 8).map((r) => (
                   <tr key={r.id}>
                     <td><Link href={`/reviews/${r.id}`} style={{ fontWeight: 600 }}>{r.title}</Link></td>
-                    <td><span className="badge badge-green">{r.risk_score}</span></td>
-                    <td style={{ color: 'var(--text-muted)' }}>{new Date(r.created_at).toLocaleDateString('id-ID')}</td>
+                    <td><span className="badge badge-green">{r.riskScore}</span></td>
+                    <td style={{ color: 'var(--text-muted)' }}>{new Date(r.createdAt).toLocaleDateString('id-ID')}</td>
                   </tr>
                 ))}
               </tbody>
