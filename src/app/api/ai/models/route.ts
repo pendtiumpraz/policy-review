@@ -5,9 +5,10 @@ import { eq, isNull } from 'drizzle-orm';
 import { requireSuperadmin, requireUser, jsonOk, jsonError } from '@/lib/server';
 import { z } from 'zod';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await requireUser();
-  const models = await db
+  const trashed = req.nextUrl.searchParams.get('trashed') === '1';
+  const rows = await db
     .select({
       id: aiModels.id,
       providerId: aiModels.providerId,
@@ -17,11 +18,12 @@ export async function GET() {
       modelId: aiModels.modelId,
       description: aiModels.description,
       enabled: aiModels.enabled,
+      deletedAt: aiModels.deletedAt,
     })
     .from(aiModels)
-    .leftJoin(aiProviders, eq(aiModels.providerId, aiProviders.id))
-    .where(isNull(aiModels.deletedAt));
-  return jsonOk(models);
+    .leftJoin(aiProviders, eq(aiModels.providerId, aiProviders.id));
+  const data = rows.filter((x) => (trashed ? x.deletedAt !== null : x.deletedAt === null));
+  return jsonOk(data);
 }
 
 const createSchema = z.object({

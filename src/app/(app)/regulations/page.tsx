@@ -15,25 +15,39 @@ interface Regulation {
 }
 
 export default function RegulationsPage() {
-  const [data, setData] = useState<Regulation[]>([]);
-  const [tab, setTab] = useState<'internal' | 'external'>('external');
+  const [active, setActive] = useState<Regulation[]>([]);
+  const [trash, setTrash] = useState<Regulation[]>([]);
+  const [tab, setTab] = useState<'external' | 'internal'>('external');
+  const [trashMode, setTrashMode] = useState(false);
   const [loading, setLoading] = useState(true);
   const [drawer, setDrawer] = useState<{ open: boolean; edit?: Regulation }>({ open: false });
-  const [saving, setSaving] = useState(false);
 
   const load = useCallback(async () => {
-    const res = await api<{ data: Regulation[] }>('/api/regulations');
-    setData(res.data);
+    const [a, t] = await Promise.all([
+      api<{ data: Regulation[] }>('/api/regulations'),
+      api<{ data: Regulation[] }>('/api/regulations?trashed=1'),
+    ]);
+    setActive(a.data);
+    setTrash(t.data);
     setLoading(false);
   }, []);
 
   useEffect(() => { load(); }, [load]);
 
-  const filtered = data.filter((r) => r.kind === tab);
+  const filtered = active.filter((r) => r.kind === tab);
 
   const remove = async (id: string) => {
-    if (!confirm('Hapus regulasi ini?')) return;
+    if (!confirm('Pindahkan regulasi ini ke Trash?')) return;
     await api(`/api/regulations/${id}`, { method: 'DELETE' });
+    load();
+  };
+  const restore = async (id: string) => {
+    await api(`/api/regulations/${id}/restore`, { method: 'POST' });
+    load();
+  };
+  const hardDelete = async (id: string) => {
+    if (!confirm('Hapus permanen? Tindakan ini tidak bisa dibatalkan.')) return;
+    await api(`/api/regulations/${id}/force`, { method: 'DELETE' });
     load();
   };
 
@@ -41,29 +55,57 @@ export default function RegulationsPage() {
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
         <h2 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Regulasi</h2>
-        <button className="btn btn-primary" onClick={() => setDrawer({ open: true })}>+ Tambah Regulasi</button>
+        {!trashMode && <button className="btn btn-primary" onClick={() => setDrawer({ open: true })}>+ Tambah Regulasi</button>}
       </div>
 
-      <div className="tabs mb-4">
-        <button className={`tab ${tab === 'external' ? 'active' : ''}`} onClick={() => setTab('external')}>Eksternal</button>
-        <button className={`tab ${tab === 'internal' ? 'active' : ''}`} onClick={() => setTab('internal')}>Internal</button>
+      <div style={{ display: 'flex', gap: 10, alignItems: 'center', marginBottom: 16 }}>
+        <div className="tabs">
+          <button className={`tab ${!trashMode && tab === 'external' ? 'active' : ''}`} onClick={() => { setTrashMode(false); setTab('external'); }}>Eksternal</button>
+          <button className={`tab ${!trashMode && tab === 'internal' ? 'active' : ''}`} onClick={() => { setTrashMode(false); setTab('internal'); }}>Internal</button>
+          <button className={`tab ${trashMode ? 'active' : ''}`} onClick={() => setTrashMode(true)}>Trash <span className="count">{trash.length}</span></button>
+        </div>
       </div>
 
       <div className="card">
         <div className="table-container">
           <table className="data-table">
-            <thead><tr><th>Judul</th><th>Sumber</th><th>Checklist</th><th>Aksi</th></tr></thead>
+            <thead>
+              <tr>
+                <th>Judul</th>
+                <th>Jenis</th>
+                <th>Sumber</th>
+                <th>Checklist</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
             <tbody>
               {loading ? (
-                <tr><td colSpan={4} className="empty-state">Memuat...</td></tr>
+                <tr><td colSpan={5} className="empty-state">Memuat...</td></tr>
+              ) : trashMode ? (
+                trash.length === 0 ? <tr><td colSpan={5} className="empty-state"><h3>Trash kosong</h3></td></tr> :
+                trash.map((r) => (
+                  <tr key={r.id} style={{ opacity: 0.7 }}>
+                    <td style={{ fontWeight: 600 }}>{r.title}</td>
+                    <td><span className="badge badge-gray">{r.kind === 'internal' ? 'Internal' : 'Eksternal'}</span></td>
+                    <td style={{ color: 'var(--text-secondary)' }}>{r.source || '—'}</td>
+                    <td><span className="badge badge-blue">{r.checklist?.length || 0}</span></td>
+                    <td>
+                      <div className="flex gap-2">
+                        <button className="btn btn-sm btn-secondary" onClick={() => restore(r.id)}>Restore</button>
+                        <button className="btn btn-sm btn-danger" onClick={() => hardDelete(r.id)}>Hapus Permanen</button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
               ) : filtered.length === 0 ? (
-                <tr><td colSpan={4} className="empty-state">
+                <tr><td colSpan={5} className="empty-state">
                   <h3>Belum ada regulasi {tab === 'internal' ? 'internal' : 'eksternal'}</h3>
                   <p>Unggah peraturan eksternal (UU, peraturan pemerintah) atau kebijakan internal.</p>
                 </td></tr>
               ) : filtered.map((r) => (
                 <tr key={r.id}>
                   <td style={{ fontWeight: 600 }}>{r.title}</td>
+                  <td><span className="badge badge-blue">{r.kind === 'internal' ? 'Internal' : 'Eksternal'}</span></td>
                   <td style={{ color: 'var(--text-secondary)' }}>{r.source || '—'}</td>
                   <td><span className="badge badge-blue">{r.checklist?.length || 0} item</span></td>
                   <td>
@@ -85,16 +127,14 @@ export default function RegulationsPage() {
           kind={tab}
           onClose={() => setDrawer({ open: false })}
           onSaved={() => { setDrawer({ open: false }); load(); }}
-          saving={saving}
-          setSaving={setSaving}
         />
       )}
     </div>
   );
 }
 
-function RegulationDrawer({ edit, kind, onClose, onSaved, saving, setSaving }: {
-  edit?: Regulation; kind: string; onClose: () => void; onSaved: () => void; saving: boolean; setSaving: (b: boolean) => void;
+function RegulationDrawer({ edit, kind, onClose, onSaved }: {
+  edit?: Regulation; kind: string; onClose: () => void; onSaved: () => void;
 }) {
   const [title, setTitle] = useState(edit?.title || '');
   const [source, setSource] = useState(edit?.source || '');
@@ -102,23 +142,20 @@ function RegulationDrawer({ edit, kind, onClose, onSaved, saving, setSaving }: {
   const [content, setContent] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [checklistText, setChecklistText] = useState((edit?.checklist || []).map((c) => c.text).join('\n'));
+  const [saving, setSaving] = useState(false);
 
   const submit = async () => {
     if (!title.trim()) { alert('Judul wajib diisi'); return; }
     setSaving(true);
     try {
       const checkpointed = checklistText.split('\n').filter((l) => l.trim()).map((text) => ({ id: crypto.randomUUID(), text: text.trim() }));
-
       if (edit) {
         await api(`/api/regulations/${edit.id}`, {
           method: 'PATCH',
           body: { title, source, description, content: content || undefined, kind: edit.kind, checklist: checkpointed },
         });
       } else {
-        const fd = formJson({
-          title, source, description, kind, content,
-          checklist: checkpointed,
-        });
+        const fd = formJson({ title, source, description, kind, content, checklist: checkpointed });
         if (file) fd.append('file', file);
         await api('/api/regulations', { method: 'POST', formData: fd });
       }

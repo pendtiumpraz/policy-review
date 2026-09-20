@@ -9,12 +9,15 @@ export async function GET(req: NextRequest) {
   const r = await requireUser();
   if ('error' in r) return r.error;
   const kind = req.nextUrl.searchParams.get('kind');
+  const trashed = req.nextUrl.searchParams.get('trashed') === '1';
   const rows = await db
     .select()
     .from(regulations)
-    .where(and(eq(regulations.tenantId, r.user.tenantId), isNull(regulations.deletedAt)))
+    .where(eq(regulations.tenantId, r.user.tenantId))
     .orderBy(regulations.createdAt);
-  const data = kind ? rows.filter((x) => x.kind === kind) : rows;
+  const data = rows
+    .filter((x) => (trashed ? x.deletedAt !== null : x.deletedAt === null))
+    .filter((x) => (kind ? x.kind === kind : true));
   return jsonOk(data);
 }
 

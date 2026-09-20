@@ -52,6 +52,11 @@ export default function ReviewsPage() {
     await api(`/api/reviews/${id}/restore`, { method: 'POST' });
     load();
   };
+  const hardDelete = async (id: string) => {
+    if (!confirm('Hapus permanen review ini?')) return;
+    await api(`/api/reviews/${id}/force`, { method: 'DELETE' });
+    load();
+  };
 
   const avg = active.length ? Math.round(active.reduce((a, r) => a + (r.risk_score || 0), 0) / active.length) : '—';
 
@@ -100,7 +105,10 @@ export default function ReviewsPage() {
                             <button className="btn btn-sm btn-danger" onClick={() => del(r.id)}>Hapus</button>
                           </>
                         ) : (
-                          <button className="btn btn-sm btn-secondary" onClick={() => restore(r.id)}>Restore</button>
+                          <>
+                            <button className="btn btn-sm btn-secondary" onClick={() => restore(r.id)}>Restore</button>
+                            <button className="btn btn-sm btn-danger" onClick={() => hardDelete(r.id)}>Hapus Permanen</button>
+                          </>
                         )}
                       </div>
                     </td>

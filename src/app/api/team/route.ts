@@ -2,18 +2,20 @@ import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { users } from '@/lib/db/schema';
-import { eq, and, isNull } from 'drizzle-orm';
+import { eq } from 'drizzle-orm';
 import { requireUser, jsonOk, jsonError } from '@/lib/server';
 import { z } from 'zod';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const r = await requireUser();
   if ('error' in r) return r.error;
+  const trashed = req.nextUrl.searchParams.get('trashed') === '1';
   const rows = await db
-    .select({ id: users.id, name: users.name, email: users.email, role: users.role, status: users.status })
+    .select({ id: users.id, name: users.name, email: users.email, role: users.role, status: users.status, deletedAt: users.deletedAt })
     .from(users)
-    .where(and(eq(users.tenantId, r.user.tenantId), isNull(users.deletedAt)));
-  return jsonOk(rows);
+    .where(eq(users.tenantId, r.user.tenantId));
+  const data = rows.filter((x) => (trashed ? x.deletedAt !== null : x.deletedAt === null));
+  return jsonOk(data);
 }
 
 const schema = z.object({

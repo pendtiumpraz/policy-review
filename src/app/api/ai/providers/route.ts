@@ -5,10 +5,12 @@ import { eq, isNull, and } from 'drizzle-orm';
 import { requireSuperadmin, requireUser, jsonOk, jsonError } from '@/lib/server';
 import { z } from 'zod';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await requireUser();
-  const providers = await db.select().from(aiProviders).where(isNull(aiProviders.deletedAt));
-  return jsonOk(providers);
+  const trashed = req.nextUrl.searchParams.get('trashed') === '1';
+  const rows = await db.select().from(aiProviders);
+  const data = rows.filter((x) => (trashed ? x.deletedAt !== null : x.deletedAt === null));
+  return jsonOk(data);
 }
 
 const createSchema = z.object({

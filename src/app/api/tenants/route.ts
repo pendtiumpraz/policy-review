@@ -6,11 +6,13 @@ import { eq, isNull } from 'drizzle-orm';
 import { requireSuperadmin, jsonOk, jsonError } from '@/lib/server';
 import { z } from 'zod';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const auth = await requireSuperadmin();
   if ('error' in auth) return auth.error;
-  const rows = await db.select().from(tenants).where(isNull(tenants.deletedAt));
-  return jsonOk(rows);
+  const trashed = req.nextUrl.searchParams.get('trashed') === '1';
+  const rows = await db.select().from(tenants);
+  const data = rows.filter((x) => (trashed ? x.deletedAt !== null : x.deletedAt === null));
+  return jsonOk(data);
 }
 
 const schema = z.object({
