@@ -9,6 +9,7 @@ export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [show, setShow] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -18,37 +19,86 @@ export default function LoginPage() {
     setLoading(true);
     const res = await signIn('credentials', { email, password, redirect: false });
     setLoading(false);
-    if (res?.error) {
-      setError('Email atau password salah, atau akun belum aktif.');
-      return;
-    }
+    if (res?.error) { setError('Email atau password salah, atau akun belum aktif.'); return; }
     router.push('/dashboard');
     router.refresh();
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--bg)' }}>
-      <form onSubmit={submit} className="card" style={{ width: 380, padding: 32 }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 24 }}>
-          <div className="logo-mark" style={{ width: 34, height: 34, fontSize: 16 }}>PR</div>
-          <h1 style={{ fontSize: 20, fontWeight: 800, margin: 0 }}>Policy Review</h1>
+    <div style={{ minHeight: '100vh', display: 'flex', background: '#f7faf8' }}>
+      {/* Brand panel */}
+      <div className="auth-brand" style={{ flex: '1 1 52%', display: 'none' }}>
+        <div style={{ padding: 40, maxWidth: 460 }}>
+          <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontWeight: 800, fontSize: 20, color: '#fff', marginBottom: '13vh' }}>
+            <span style={{ display: 'inline-flex', width: 34, height: 34, borderRadius: 9, background: 'rgba(255,255,255,0.16)', color: '#fff', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}>PR</span>
+            PolicyReview<span style={{ opacity: 0.6 }}>.</span>
+          </Link>
+          <h1 style={{ color: '#fff', fontSize: 40, lineHeight: 1.15, fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 16px' }}>
+            Kepatuhan jadi<br />lebih <em style={{ fontStyle: 'normal', color: '#a8f0c6' }}>terukur</em>.
+          </h1>
+          <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
+            Satu platform untuk mereview kebijakan & regulasi — data terisolasi per organisasi, AI agnostik, hasil bisa diedit.
+          </p>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+            {[
+              ['⚡', 'Review AI dalam sekali klik'],
+              ['🔒', 'Isolasi penuh antar tenant'],
+              ['🎯', 'Hasil audit yang bisa diedit'],
+            ].map(([ic, t]) => (
+              <div key={t} style={{ display: 'flex', alignItems: 'center', gap: 12, color: '#fff', fontSize: 14, fontWeight: 600 }}>
+                <span style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(255,255,255,0.12)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>{ic}</span>
+                {t}
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="form-group">
-          <label className="form-label">Email</label>
-          <input className="form-input" type="email" value={email} onChange={(e) => setEmail(e.target.value)} autoFocus />
-        </div>
-        <div className="form-group">
-          <label className="form-label">Password</label>
-          <input className="form-input" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
-        </div>
-        {error && <div style={{ color: 'var(--danger)', fontSize: 13, marginBottom: 12 }}>{error}</div>}
-        <button className="btn btn-primary" style={{ width: '100%', justifyContent: 'center' }} disabled={loading}>
-          {loading ? 'Masuk...' : 'Masuk'}
-        </button>
-        <div style={{ marginTop: 16, textAlign: 'center', fontSize: 13, color: 'var(--text-secondary)' }}>
-          Belum punya akun? <Link href="/register" style={{ color: 'var(--primary)' }}>Daftar</Link>
-        </div>
-      </form>
+      </div>
+
+      {/* Form panel */}
+      <div style={{ flex: '1 1 48%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 32 }}>
+        <form onSubmit={submit} style={{ width: 380 }}>
+          <div style={{ marginBottom: 28 }}>
+            <h2 style={{ fontSize: 26, fontWeight: 900, margin: 0, letterSpacing: '-0.02em' }}>Selamat datang kembali</h2>
+            <p style={{ color: '#5b6f64', margin: '6px 0 0', fontSize: 14 }}>Masuk untuk melanjutkan ke dashboard.</p>
+          </div>
+
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input className="form-input" style={{ padding: '12px 14px' }} type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nama@organisasi.id" autoFocus />
+          </div>
+          <div className="form-group">
+            <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
+              Password
+              <span style={{ color: '#9aada2', fontWeight: 500, cursor: 'default' }}>Lupa?</span>
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input className="form-input" style={{ padding: '12px 44px 12px 14px' }} type={show ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+              <button type="button" onClick={() => setShow((s) => !s)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', cursor: 'pointer', color: '#7c9085', fontSize: 13, fontWeight: 700 }}>
+                {show ? 'Sembunyi' : 'Lihat'}
+              </button>
+            </div>
+          </div>
+
+          {error && <div style={{ color: '#dc2626', fontSize: 13, marginBottom: 14, background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 12px' }}>{error}</div>}
+
+          <button className="cta" style={{ width: '100%', border: 'none', padding: '13px', fontSize: 15, justifyContent: 'center', display: 'flex', cursor: 'pointer' }} disabled={loading}>
+            {loading ? 'Masuk...' : 'Masuk'}
+          </button>
+
+          <p style={{ textAlign: 'center', marginTop: 22, fontSize: 14, color: '#5b6f64' }}>
+            Belum punya organisasi? <Link href="/register" style={{ color: '#0f9d58', fontWeight: 700 }}>Daftar gratis</Link>
+          </p>
+        </form>
+      </div>
+
+      <style>{`
+        .auth-brand { display:flex; flex-direction:column; justify-content:center; background: linear-gradient(150deg,#08633a 0%,#0f9d58 55%,#19c26b 100%); position:relative; overflow:hidden; }
+        .auth-brand::after { content:''; position:absolute; width:480px; height:480px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.14), transparent 60%); right:-120px; bottom:-140px; }
+        @media (min-width: 860px) { .auth-brand { display:flex !important; } }
+        .cta { background: linear-gradient(135deg,#0f9d58,#19c26b); color:#fff; border-radius:10px; font-weight:800; box-shadow:0 12px 26px -12px rgba(15,157,88,0.7); transition: transform .15s, box-shadow .15s; }
+        .cta:hover { transform: translateY(-2px); }
+        .cta:disabled { opacity:.6; cursor:not-allowed; }
+      `}</style>
     </div>
   );
 }

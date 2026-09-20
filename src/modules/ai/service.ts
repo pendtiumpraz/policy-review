@@ -27,9 +27,34 @@ export interface ResolvedAi {
   request: AiRequest;
 }
 
+/** The platform (superadmin) tenant id — holds platform AI keys. */
+export async function platformTenantId(): Promise<string | undefined> {
+  const [t] = await db.select().from(tenants).where(eq(tenants.isPlatform, true)).limit(1);
+  return t?.id;
+}
+
+/** Does the given tenant have an enabled API key (in DB) for this provider? */
+export async function providerHasKey(providerId: string, tenantId: string): Promise<boolean> {
+  const [k] = await db
+    .select()
+    .from(tenantAiKeys)
+    .where(
+      and(
+        eq(tenantAiKeys.providerId, providerId),
+        eq(tenantAiKeys.tenantId, tenantId),
+        eq(tenantAiKeys.enabled, true),
+        isNull(tenantAiKeys.deletedAt),
+      ),
+    )
+    .limit(1);
+  return !!k;
+}
+
 /**
  * Resolve the AI provider + model + key for a tenant.
- * Priority: tenant BYOK key > platform env key.
+ * API keys are stored ONLY in the database (never process.env):
+ *   1. tenant BYOK key (this tenant)
+ *   2. platform key (stored under the platform tenant)
  */
 export async function resolveAi(
   tenantId: string,
@@ -82,8 +107,24 @@ export async function resolveAi(
   let apiKey: string | undefined;
   if (byok[0]) {
     apiKey = decryptSecret(byok[0].apiKeyCipher);
-  } else if (p?.envKey) {
-    apiKey = process.env[p.envKey];
+  } else {
+    // Platform key (DB) — stored under the platform tenant.
+    const payload = await platformTenantId();
+    if (payload) {
+      const [pk] = await db
+        .select()
+        .from(tenantAiKeys)
+        .where(
+          and(
+            eq(tenantAiKeys.tenantId, payload),
+            eq(tenantAiKeys.providerId, providerRow.id),
+            eq(tenantAiKeys.enabled, true),
+            isNull(tenantAiKeys.deletedAt),
+          ),
+        )
+        .limit(1);
+      if (pk) apiKey = decryptSecret(pk.apiKeyCipher);
+    }
   }
 
   if (!apiKey) throw new AiNoKey(providerRow.name);

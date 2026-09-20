@@ -8,6 +8,7 @@ import { api } from '@/lib/client-api';
 interface Provider { id: string; code: string; name: string; enabled: boolean; base_url: string | null; }
 interface Model { id: string; providerId: string; providerName: string; name: string; modelId: string; enabled: boolean; }
 interface Tenant { id: string; name: string; slug: string; token_quota: number; brand_primary_color: string; }
+interface Key { id: string; providerId: string; }
 
 export default function AdminPage() {
   const { data: session, status } = useSession();
@@ -16,19 +17,23 @@ export default function AdminPage() {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [models, setModels] = useState<Model[]>([]);
   const [tenants, setTenants] = useState<Tenant[]>([]);
+  const [keys, setKeys] = useState<Key[]>([]);
   const [showProvider, setShowProvider] = useState(false);
   const [showModel, setShowModel] = useState(false);
   const [showTenant, setShowTenant] = useState(false);
+  const [keyFor, setKeyFor] = useState<Provider | null>(null);
 
   const load = useCallback(async () => {
-    const [p, m, t] = await Promise.all([
+    const [p, m, t, k] = await Promise.all([
       api<{ data: Provider[] }>('/api/ai/providers'),
       api<{ data: Model[] }>('/api/ai/models'),
       api<{ data: Tenant[] }>('/api/tenants'),
+      api<{ data: Key[] }>('/api/ai/keys'),
     ]);
     setProviders(p.data);
     setModels(m.data);
     setTenants(t.data);
+    setKeys(k.data);
   }, []);
 
   useEffect(() => {
@@ -41,13 +46,23 @@ export default function AdminPage() {
   if (status !== 'authenticated') return <div className="empty-state">Memuat...</div>;
 
   const toggleProvider = async (id: string, enabled: boolean) => {
-    await api(`/api/ai/providers/${id}`, { method: 'PATCH', body: { enabled } });
+    try {
+      await api(`/api/ai/providers/${id}`, { method: 'PATCH', body: { enabled } });
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Gagal');
+    }
     load();
   };
   const toggleModel = async (id: string, enabled: boolean) => {
-    await api(`/api/ai/models/${id}`, { method: 'PATCH', body: { enabled } });
+    try {
+      await api(`/api/ai/models/${id}`, { method: 'PATCH', body: { enabled } });
+    } catch (e) {
+      alert(e instanceof Error ? e.message : 'Gagal');
+    }
     load();
   };
+
+  const keyByProvider = new Map(keys.map((k) => [k.providerId, k]));
 
   return (
     <div style={{ padding: 24 }}>
@@ -73,15 +88,21 @@ export default function AdminPage() {
           </div>
           <div className="table-container">
             <table className="data-table">
-              <thead><tr><th>Nama</th><th>Code</th><th>Base URL</th><th>Status</th><th>Aksi</th></tr></thead>
+              <thead><tr><th>Nama</th><th>Code</th><th>Base URL</th><th>Key</th><th>Status</th><th>Aksi</th></tr></thead>
               <tbody>
                 {providers.map((p) => (
                   <tr key={p.id}>
                     <td style={{ fontWeight: 600 }}>{p.name}</td>
                     <td><code>{p.code}</code></td>
                     <td style={{ color: 'var(--text-muted)' }}>{p.base_url || '—'}</td>
+                    <td>{keyByProvider.has(p.id) ? <span className="badge badge-green">Ada</span> : <span className="badge badge-gray">Belum</span>}</td>
                     <td><span className={`badge ${p.enabled ? 'badge-green' : 'badge-gray'}`}>{p.enabled ? 'Aktif' : 'Nonaktif'}</span></td>
-                    <td><button className="btn btn-sm btn-secondary" onClick={() => toggleProvider(p.id, !p.enabled)}>{p.enabled ? 'Nonaktifkan' : 'Aktifkan'}</button></td>
+                    <td>
+                      <div className="flex gap-2">
+                        <button className="btn btn-sm btn-secondary" onClick={() => setKeyFor(p)}>Set Key</button>
+                        <button className="btn btn-sm btn-secondary" onClick={() => toggleProvider(p.id, !p.enabled)}>{p.enabled ? 'Nonaktifkan' : 'Aktifkan'}</button>
+                      </div>
+                    </td>
                   </tr>
                 ))}
               </tbody>
@@ -148,7 +169,36 @@ export default function AdminPage() {
       {showProvider && <ProviderForm onClose={() => setShowProvider(false)} onSaved={() => { setShowProvider(false); load(); }} />}
       {showModel && <ModelForm providers={providers} onClose={() => setShowModel(false)} onSaved={() => { setShowModel(false); load(); }} />}
       {showTenant && <TenantForm onClose={() => setShowTenant(false)} onSaved={() => { setShowTenant(false); load(); }} />}
+      {keyFor && <KeyForm provider={keyFor} onClose={() => setKeyFor(null)} onSaved={() => { setKeyFor(null); load(); }} />}
     </div>
+  );
+}
+
+function KeyForm({ provider, onClose, onSaved }: { provider: Provider; onClose: () => void; onSaved: () => void }) {
+  const [apiKey, setApiKey] = useState('');
+  const submit = async () => {
+    if (!apiKey.trim()) { alert('Isi API key'); return; }
+    await api('/api/ai/keys', { method: 'POST', body: { providerId: provider.id, apiKey: apiKey.trim() } });
+    onSaved();
+  };
+  return (
+    <>
+      <div className="drawer-backdrop" onClick={onClose} />
+      <div className="drawer">
+        <div className="drawer-header"><h3>Kunci Platform · {provider.name}</h3><button className="btn btn-ghost btn-icon" onClick={onClose}>✕</button></div>
+        <div className="drawer-body">
+          <div className="form-group">
+            <label className="form-label">API Key</label>
+            <input className="form-input" type="password" value={apiKey} onChange={(e) => setApiKey(e.target.value)} placeholder="bearer token / sk-..." />
+            <div className="form-hint">Tersimpan di database (terenkripsi AES-256-GCM). Dipakai semua tenant yang tidak BYOK.</div>
+          </div>
+        </div>
+        <div className="drawer-footer">
+          <button className="btn btn-secondary" onClick={onClose}>Batal</button>
+          <button className="btn btn-primary" onClick={submit}>Simpan</button>
+        </div>
+      </div>
+    </>
   );
 }
 
