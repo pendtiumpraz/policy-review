@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { api, formJson } from '@/lib/client-api';
+import { EditIcon, TrashIcon, RestoreIcon } from '@/components/icons';
 
 interface Regulation {
   id: string;
@@ -90,9 +91,9 @@ export default function RegulationsPage() {
                     <td style={{ color: 'var(--text-secondary)' }}>{r.source || '—'}</td>
                     <td><span className="badge badge-blue">{r.checklist?.length || 0}</span></td>
                     <td>
-                      <div className="flex gap-2">
-                        <button className="btn btn-sm btn-secondary" onClick={() => restore(r.id)}>Restore</button>
-                        <button className="btn btn-sm btn-danger" onClick={() => hardDelete(r.id)}>Hapus Permanen</button>
+                      <div className="row-actions">
+                        <button className="icon-btn" title="Restore" onClick={() => restore(r.id)}><RestoreIcon /></button>
+                        <button className="icon-btn danger" title="Hapus permanen" onClick={() => hardDelete(r.id)}><TrashIcon /></button>
                       </div>
                     </td>
                   </tr>
@@ -109,9 +110,9 @@ export default function RegulationsPage() {
                   <td style={{ color: 'var(--text-secondary)' }}>{r.source || '—'}</td>
                   <td><span className="badge badge-blue">{r.checklist?.length || 0} item</span></td>
                   <td>
-                    <div className="flex gap-2">
-                      <button className="btn btn-sm btn-secondary" onClick={() => setDrawer({ open: true, edit: r })}>Edit</button>
-                      <button className="btn btn-sm btn-danger" onClick={() => remove(r.id)}>Hapus</button>
+                    <div className="row-actions">
+                      <button className="icon-btn" title="Edit" onClick={() => setDrawer({ open: true, edit: r })}><EditIcon /></button>
+                      <button className="icon-btn danger" title="Hapus" onClick={() => remove(r.id)}><TrashIcon /></button>
                     </div>
                   </td>
                 </tr>

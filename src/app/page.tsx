@@ -1,7 +1,8 @@
 import Link from 'next/link';
 import { getServerSession } from 'next-auth';
 import { authOptions } from '@/lib/auth';
-import { ShieldIcon, PlugIcon, ChartIcon, BookIcon, EditIcon, PaletteIcon, BoltIcon, LockIcon, TargetIcon } from '@/components/icons';
+import { ShieldIcon, PlugIcon, ChartIcon, BookIcon, EditIcon, PaletteIcon, BoltIcon, LockIcon, TargetIcon, Logo } from '@/components/icons';
+import DemoSimulation from '@/components/DemoSimulation';
 
 const G = '#0f9d58';
 
@@ -12,110 +13,100 @@ export default async function LandingPage() {
   return (
     <div style={{ background: '#f7faf8', color: '#0b1f15', fontFamily: "'Inter', system-ui, sans-serif", minHeight: '100vh' }}>
       {/* Nav */}
-      <header style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 5%', maxWidth: 1180, margin: '0 auto' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800, fontSize: 18 }}>
-          <span style={{ display: 'inline-flex', width: 30, height: 30, borderRadius: 8, background: 'linear-gradient(135deg,#0f9d58,#19c26b)', color: '#fff', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 900 }}>PR</span>
-          PolicyReview<span style={{ color: G }}>.</span>
+      <header style={{ position: 'sticky', top: 0, zIndex: 50, background: 'rgba(247,250,248,0.85)', backdropFilter: 'blur(12px)', borderBottom: '1px solid #e5efe9' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '16px 5%', maxWidth: 1180, margin: '0 auto' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, fontWeight: 800, fontSize: 18 }}>
+            <Logo size={30} />
+            PolicyReview<span style={{ color: G }}>.</span>
+          </div>
+          <nav style={{ display: 'flex', alignItems: 'center', gap: 24, fontSize: 14, color: '#2a3d33' }}>
+            <a href="#fitur" style={{ color: 'inherit' }}>Fitur</a>
+            <a href="#simulasi" style={{ color: 'inherit' }}>Simulasi</a>
+            <a href="#cara" style={{ color: 'inherit' }}>Cara Kerja</a>
+            {authed ? (
+              <Link href="/dashboard" className="cta">Buka Dashboard</Link>
+            ) : (
+              <>
+                <Link href="/login" style={{ color: 'inherit', fontWeight: 600 }}>Masuk</Link>
+                <Link href="/register" className="cta">Mulai Gratis</Link>
+              </>
+            )}
+          </nav>
         </div>
-        <nav style={{ display: 'flex', alignItems: 'center', gap: 22, fontSize: 14, color: '#2a3d33' }}>
-          <a href="#fitur" style={{ color: 'inherit' }}>Fitur</a>
-          <a href="#cara" style={{ color: 'inherit' }}>Cara Kerja</a>
-          {authed ? (
-            <Link href="/dashboard" className="cta">Buka Dashboard</Link>
-          ) : (
-            <>
-              <Link href="/login" style={{ color: 'inherit', fontWeight: 600 }}>Masuk</Link>
-              <Link href="/register" className="cta">Mulai Gratis</Link>
-            </>
-          )}
-        </nav>
       </header>
 
       {/* Hero */}
-      <section style={{ maxWidth: 1180, margin: '0 auto', padding: '64px 5% 48px', display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: 48, alignItems: 'center' }}>
+      <section style={{ maxWidth: 1180, margin: '0 auto', padding: '70px 5% 56px', display: 'grid', gridTemplateColumns: '1.05fr 0.95fr', gap: 48, alignItems: 'center' }}>
         <div>
-          <div className="pill">Multi-tenant · AI-agnostic · BYOK</div>
-          <h1 style={{ fontSize: 52, lineHeight: 1.08, margin: '18px 0', letterSpacing: '-0.03em', fontWeight: 900 }}>
-            Review <span style={{ color: 'transparent', background: 'linear-gradient(120deg,#0f9d58,#19c26b)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>kebijakan & regulasi</span> perusahaan pakai AI yang kamu pegang kendalinya.
+          <div className="pill">Multi-tenant · AI-agnostic · BYOK · White-label</div>
+          <h1 style={{ fontSize: 54, lineHeight: 1.06, margin: '18px 0', letterSpacing: '-0.035em', fontWeight: 900 }}>
+            Review <span style={{ color: 'transparent', background: 'linear-gradient(120deg,#0f9d58,#19c26b)', WebkitBackgroundClip: 'text', backgroundClip: 'text' }}>kebijakan & regulasi</span> perusahaan, akurat dan bisa dipertanggungjawabkan.
           </h1>
-          <p style={{ fontSize: 17, lineHeight: 1.65, color: '#3c5247', maxWidth: 480, margin: '0 0 28px' }}>
-            Audit kepatuhan SOP & kebijakan internal terhadap regulasi eksternal (UU PDP) dan ketentuan internal — dengan provider AI pilihanmu, data terisolasi per tenant, dan hasil yang bisa diedit.
+          <p style={{ fontSize: 17, lineHeight: 1.7, color: '#3c5247', maxWidth: 500, margin: '0 0 30px' }}>
+            Tim hukum & kepatuhan butuh kejelasan, bukan tebakan. PolicyReview mengaudit SOP dan kebijakan internal terhadap regulasi eksternal (UU PDP) dan ketentuan internal — dengan AI yang kamu pegang kendalinya, data terisolasi per organisasi, dan hasil yang bisa diedit.
           </p>
           <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-            <Link href="/register" className="cta" style={{ padding: '14px 26px', fontSize: 15 }}>Coba Sekarang</Link>
-            <Link href="/login" className="ghost-cta">Demo Langsung</Link>
+            <Link href="/register" className="cta" style={{ padding: '15px 28px', fontSize: 15 }}>Coba Gratis — Tanpa Kartu Kredit</Link>
+            <a href="#simulasi" className="ghost-cta">Lihat Simulasi</a>
           </div>
-          <div style={{ display: 'flex', gap: 26, marginTop: 34 }}>
+          <div style={{ display: 'flex', gap: 30, marginTop: 36 }}>
             {[
               ['13+', 'Model AI'],
-              ['2 sumber', 'Regulasi in/ext'],
-              ['100%', 'Editable hasil'],
+              ['2 sumber', 'Regulasi in/eksternal'],
+              ['100%', 'Hasil editable'],
+              ['0', 'Kebocoran antar tenant'],
             ].map(([v, l]) => (
-              <div key={l}><div style={{ fontSize: 24, fontWeight: 900, color: G }}>{v}</div><div style={{ fontSize: 12, color: '#5b6f64' }}>{l}</div></div>
+              <div key={l}><div style={{ fontSize: 26, fontWeight: 900, color: G, letterSpacing: '-0.02em' }}>{v}</div><div style={{ fontSize: 12, color: '#5b6f64' }}>{l}</div></div>
             ))}
           </div>
         </div>
 
-        {/* Mock dashboard */}
         <div style={{ position: 'relative' }}>
           <div className="hero-glow" />
-          <div style={{ position: 'relative', background: '#0b1220', borderRadius: 20, padding: 22, boxShadow: '0 40px 80px -30px rgba(15,157,88,0.45)', color: '#e6f1eb' }}>
-            <div style={{ display: 'flex', gap: 8, marginBottom: 16 }}>
-              <span style={{ width: 10, height: 10, borderRadius: 5, background: '#ff5f57' }} />
-              <span style={{ width: 10, height: 10, borderRadius: 5, background: '#febc2e' }} />
-              <span style={{ width: 10, height: 10, borderRadius: 5, background: '#28c840' }} />
-            </div>
-            <div style={{ display: 'flex', gap: 14 }}>
-              <div style={{ width: 104, borderRadius: 10, background: '#131c2c', padding: 10, display: 'flex', flexDirection: 'column', gap: 6, alignSelf: 'flex-start' }}>
-                {['#0f9d58', '#f59e0b', '#3b82f6', '#8b5cf6', '#ef4444'].map((c, i) => (
-                  <div key={c} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px', borderRadius: 6, background: i === 0 ? 'rgba(255,255,255,0.06)' : 'transparent' }}>
-                    <span style={{ width: 8, height: 8, borderRadius: 3, background: c }} />
-                    <span style={{ width: 40, height: 5, borderRadius: 3, background: '#2a3850' }} />
-                  </div>
-                ))}
+          <DemoSimulation />
+        </div>
+      </section>
+
+      {/* Kenapa / problem */}
+      <section style={{ background: '#fff', borderTop: '1px solid #edf3ef', borderBottom: '1px solid #edf3ef', padding: '72px 5%' }}>
+        <div style={{ maxWidth: 1080, margin: '0 auto' }}>
+          <div className="section-eyebrow">Kenapa PolicyReview</div>
+          <h2 style={{ fontSize: 34, fontWeight: 900, letterSpacing: '-0.025em', margin: '8px 0 16px', maxWidth: 720 }}>
+            Review manual lambat, rawan terlewat, dan susah diaudit.
+          </h2>
+          <p style={{ fontSize: 16, color: '#4b6156', lineHeight: 1.7, maxWidth: 720, margin: 0 }}>
+            Menelaah ratusan pasal per dokumen terhadap banyak regulasi memakan waktu berminggu-minggu, dan hasilnya tersebar di spreadsheet yang tidak konsisten. PolicyReview membuat setiap celah kepatuhan terlihat jelas, lengkap dengan rekomendasi & referensi pasal — lalu tetap bisa kamu koreksi dan simpan.
+          </p>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 20, marginTop: 36 }}>
+            {[
+              [LockIcon, 'Isolasi total', 'Setiap organisasi (tenant) punya data, kunci AI, kuota, dan hasil yang benar-benar terpisah. Tanpa foreign key & kebocoran silang.'],
+              [PaletteIcon, 'White-label', 'Warna & logo mengikuti identitas brand tiap organisasi (hijau Pegadaian, dst), bukan template generik.'],
+              [PlugIcon, 'AI yang kamu pegang', 'Provider agnostik: bawa kunci sendiri (BYOK) atau pakai kunci platform. Ganti model kapan saja tanpa ubah kode.'],
+              [ChartIcon, 'Terkendali & terukur', 'Kuota token per tenant, tercatat tiap pemanggilan. Kamu tahu persis berapa yang terpakai.'],
+            ].map(([Icon, t, d]) => (
+              <div key={t as string} className="why-card">
+                <Icon />
+                <h3>{t as string}</h3>
+                <p>{d as string}</p>
               </div>
-              <div style={{ flex: 1 }}>
-                <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
-                  {['Skor 86', 'Patuh 12', 'Gap 3'].map((t, i) => (
-                    <div key={t} style={{ flex: 1, background: '#131c2c', borderRadius: 8, padding: '12px 10px' }}>
-                      <div style={{ fontSize: 18, fontWeight: 800, color: i === 1 ? '#19c26b' : i === 2 ? '#f59e0b' : '#fff' }}>{t.split(' ')[0] === 'Patuh' ? '12' : t.split(' ')[0] === 'Gap' ? '3' : '86'}</div>
-                      <div style={{ fontSize: 9, color: '#7c8ba0' }}>{t.split(' ')[1] || t}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14, background: '#131c2c', borderRadius: 8, padding: 12, marginBottom: 10 }}>
-                  <div style={{ width: 46, height: 46, borderRadius: 50, border: '4px solid #19c26b', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, color: '#19c26b' }}>86</div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, fontWeight: 700 }}>
-                      <span>Kepatuhan</span><span style={{ color: '#19c26b' }}>Patuh</span>
-                    </div>
-                    <div style={{ height: 6, borderRadius: 3, background: '#222e44', marginTop: 8 }}><div style={{ width: '86%', height: 6, borderRadius: 3, background: 'linear-gradient(90deg,#0f9d58,#19c26b)' }} /></div>
-                  </div>
-                </div>
-                {['Dasar hukum pemrosesan → Patuh', 'Masa retensi data → Sebagian', 'Hak subjek data → Patuh'].map((r) => (
-                  <div key={r} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: 11, padding: '8px 12px', borderRadius: 8, background: '#131c2c', marginBottom: 6, color: '#c3d2c9' }}>
-                    <span>{r.split(' → ')[0]}</span>
-                    <span style={{ color: r.includes('Sebagian') ? '#f59e0b' : '#19c26b', fontWeight: 700 }}>{r.split(' → ')[1]}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Features */}
-      <section id="fitur" style={{ maxWidth: 1180, margin: '0 auto', padding: '40px 5% 64px' }}>
-        <h2 style={{ textAlign: 'center', fontSize: 32, fontWeight: 900, letterSpacing: '-0.02em', marginBottom: 8 }}>Dibangun untuk kepatuhan yang serius</h2>
-        <p style={{ textAlign: 'center', color: '#4b6156', marginBottom: 40 }}>Semua yang kamu butuhkan untuk meninjau kebijakan tanpa kebocoran data.</p>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 20 }}>
+      {/* Fitur */}
+      <section id="fitur" style={{ maxWidth: 1180, margin: '0 auto', padding: '72px 5%' }}>
+        <div className="section-eyebrow" style={{ textAlign: 'center' }}>Fitur</div>
+        <h2 style={{ textAlign: 'center', fontSize: 34, fontWeight: 900, letterSpacing: '-0.025em', margin: '8px 0 8px' }}>Semua yang dibutuhkan tim kepatuhan</h2>
+        <p style={{ textAlign: 'center', color: '#4b6156', marginBottom: 44, fontSize: 16 }}>Dari unggah regulasi sampai review yang bisa diedit.</p>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20 }}>
           {[
-            [ShieldIcon, 'Multi-tenant terisolasi', 'Data, kunci AI, dan hasil review tiap organisasi benar-benar terpisah.'],
-            [PlugIcon, 'AI-agnostic + BYOK', 'Provider & model dikelola superadmin. Bawa kunci sendiri atau pakai kunci platform.'],
-            [ChartIcon, 'Kuota token', 'Kontrol pemakaian token per tenant, tercatat otomatis tiap pemanggilan AI.'],
-            [BookIcon, 'Regulasi in & external', 'Unggah UU/peraturan eksternal ataupun kebijakan internal, lengkap dengan checklist.'],
-            [EditIcon, 'Hasil editable', 'Output AI diparsing jadi tampilan review yang bisa kamu edit dan simpan ulang.'],
-            [PaletteIcon, 'White-label', 'Warna brand & logo tiap tenant menyesuaikan identitas organisasimu.'],
+            [BookIcon, 'Regulasi internal & eksternal', 'Unggah UU/peraturan pemerintah ataupun kebijakan internal. Lengkap dengan checklist untuk ditinjau satu per satu.'],
+            [BoltIcon, 'Review AI sekali klik', 'Pilih dokumen + bundle regulasi, pilih model, jalankan. AI mengembalikan audit terstruktur dalam hitungan detik.'],
+            [EditIcon, 'Hasil yang bisa diedit', 'Output AI diparsing jadi skor, ringkasan, analisis per-bagian, per-regulasi, dan checklist — semuanya bisa diedit & disimpan.'],
+            [ShieldIcon, 'Soft delete + audit trail', 'CRUD penuh: soft delete, trash view, restore, dan hapus permanen. Riwayat tidak pernah hilang begitu saja.'],
+            [TargetIcon, 'Prioritas tindak lanjut', 'Dapatkan daftar tindakan prioritas (high/medium/low) dengan saran tenggat — langsung jadi backlog timmu.'],
+            [ChartIcon, 'Skor kepatuhan', 'Skor 0–100 + level kepatuhan per dokumen, sehingga mudah dibandingkan antar waktu dan antar kebijakan.'],
           ].map(([Icon, t, d]) => (
             <div key={t as string} className="feat-card">
               <div className="feat-ic"><Icon /></div>
@@ -126,51 +117,70 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* How it works */}
-      <section id="cara" style={{ background: '#0b1220', color: '#e8f2ec', padding: '64px 5%' }}>
+      {/* Simulasi */}
+      <section id="simulasi" style={{ background: '#0b1220', color: '#e8f2ec', padding: '72px 5%' }}>
         <div style={{ maxWidth: 1080, margin: '0 auto' }}>
-          <h2 style={{ textAlign: 'center', fontSize: 30, fontWeight: 900, marginBottom: 40 }}>Cara kerjanya</h2>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 32 }}>
-            {[
-              ['1', 'Unggah regulasi & dokumen', 'Masukkan regulasi eksternal/internal dan dokumen kebijakan yang ingin direview.'],
-              ['2', 'Pilih bundle + model AI', 'Pilih peraturan yang berlaku, checklist satu-per-satu, dan model AI aktif.'],
-              ['3', 'Edit & simpan hasil', 'AI kembalikan JSON audit → tampilan review yang bisa diedit → simpan ke database.'],
-            ].map(([n, t, d]) => (
-              <div key={n} style={{ textAlign: 'center' }}>
-                <div style={{ width: 52, height: 52, margin: '0 auto 16px', borderRadius: '50%', background: 'linear-gradient(135deg,#0f9d58,#19c26b)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: '#fff' }}>{n}</div>
-                <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>{t}</h3>
-                <p style={{ color: '#9fb2a8', lineHeight: 1.6, fontSize: 14 }}>{d}</p>
-              </div>
-            ))}
+          <div className="section-eyebrow" style={{ color: '#19c26b', textAlign: 'center' }}>Simulasi</div>
+          <h2 style={{ textAlign: 'center', fontSize: 34, fontWeight: 900, letterSpacing: '-0.025em', margin: '8px 0 8px' }}>Coba alurnya langsung</h2>
+          <p style={{ textAlign: 'center', color: '#9fb2a8', marginBottom: 36, fontSize: 16 }}>Klik tiap langkah — ini cara kerja PolicyReview sebelum kamu daftar.</p>
+          <div style={{ maxWidth: 720, margin: '0 auto' }}>
+            <DemoSimulation />
           </div>
         </div>
       </section>
 
+      {/* Cara kerja */}
+      <section id="cara" style={{ maxWidth: 1080, margin: '0 auto', padding: '72px 5%' }}>
+        <div className="section-eyebrow" style={{ textAlign: 'center' }}>Cara kerja</div>
+        <h2 style={{ textAlign: 'center', fontSize: 34, fontWeight: 900, letterSpacing: '-0.025em', margin: '8px 0 44px' }}>Tiga langkah menuju kepatuhan</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(230px, 1fr))', gap: 36 }}>
+          {[
+            ['1', 'Unggah regulasi & dokumen', 'Masukkan regulasi eksternal/internal dan dokumen kebijakan yang ingin direview. Teks diekstrak otomatis dari PDF/DOCX.'],
+            ['2', 'Pilih bundle & model AI', 'Pilih peraturan yang berlaku, checklist satu-per-satu, dan model AI aktif (BYOK atau platform).'],
+            ['3', 'Edit & simpan hasil', 'AI mengembalikan JSON audit → tampilan review editable → simpan ke database. Unduh, tindak lanjuti, selesai.'],
+          ].map(([n, t, d]) => (
+            <div key={n} style={{ position: 'relative' }}>
+              <div style={{ width: 52, height: 52, marginBottom: 18, borderRadius: '50%', background: 'linear-gradient(135deg,#0f9d58,#19c26b)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, fontWeight: 900, color: '#fff' }}>{n}</div>
+              <h3 style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>{t}</h3>
+              <p style={{ color: '#4b6156', lineHeight: 1.65, fontSize: 14, margin: 0 }}>{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* CTA */}
-      <section style={{ maxWidth: 1080, margin: '0 auto', padding: '72px 5%', textAlign: 'center' }}>
-        <h2 style={{ fontSize: 36, fontWeight: 900, letterSpacing: '-0.02em', marginBottom: 12 }}>Siap meninjau kebijakan dengan benar?</h2>
-        <p style={{ color: '#4b6156', marginBottom: 28 }}>Mulai gratis — deploy ke Vercel dalam hitungan menit.</p>
-        <Link href="/register" className="cta" style={{ padding: '16px 32px', fontSize: 16 }}>Buat Organisasi</Link>
+      <section style={{ maxWidth: 1080, margin: '0 auto', padding: '40px 5% 88px', textAlign: 'center' }}>
+        <div style={{ background: 'linear-gradient(135deg,#0b1220,#122419)', borderRadius: 24, padding: '56px 40px', color: '#fff' }}>
+          <h2 style={{ fontSize: 34, fontWeight: 900, letterSpacing: '-0.025em', marginBottom: 12 }}>Kepatuhan bukan lagi tebak-tebakan.</h2>
+          <p style={{ color: '#a9bfb2', marginBottom: 28, fontSize: 16 }}>Mulai hari ini — satu organisasi, seluruh regulasi, satu dashboard.</p>
+          <Link href="/register" className="cta" style={{ padding: '16px 34px', fontSize: 16 }}>Buat Organisasi Gratis</Link>
+          <div style={{ color: '#6f8478', fontSize: 12, marginTop: 18 }}>Tanpa kartu kredit · Deploy ke Vercel dalam hitungan menit</div>
+        </div>
       </section>
 
       <footer style={{ borderTop: '1px solid #e2ece6', padding: '28px 5%', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 12, color: '#6a7f73', fontSize: 13, maxWidth: 1180, margin: '0 auto' }}>
-        <span>© {new Date().getFullYear()} PolicyReview — Multi-tenant AI policy review.</span>
+        <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><Logo size={18} /> © {new Date().getFullYear()} PolicyReview — Multi-tenant AI policy review.</span>
         <span>Neon Postgres · Vercel Blob · AI-agnostic</span>
       </footer>
 
       <style>{`
         .cta { background: linear-gradient(135deg,#0f9d58,#19c26b); color:#fff; padding:11px 20px; border-radius:10px; font-weight:700; text-decoration:none; display:inline-block; box-shadow:0 10px 24px -10px rgba(15,157,88,0.6); transition: transform .15s ease, box-shadow .15s ease; }
         .cta:hover { transform: translateY(-2px); box-shadow:0 16px 30px -12px rgba(15,157,88,0.7); }
-        .ghost-cta { padding:13px 24px; border-radius:10px; font-weight:700; color:#0b1f15; border:1px solid #d7e3dc; text-decoration:none; transition: background .15s; }
+        .ghost-cta { padding:14px 24px; border-radius:10px; font-weight:700; color:#0b1f15; border:1px solid #d7e3dc; text-decoration:none; transition: background .15s; }
         .ghost-cta:hover { background:#eef5f1; }
         .pill { display:inline-block; padding:6px 14px; border-radius:100px; background:#e4f4ea; color:#0f9d58; font-size:12px; font-weight:700; }
-        .feat-card { background:#fff; border:1px solid #e5efe9; border-radius:16px; padding:24px; transition: transform .18s, box-shadow .18s; }
+        .section-eyebrow { font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#0f9d58; }
+        .feat-card { background:#fff; border:1px solid #e5efe9; border-radius:16px; padding:26px; transition: transform .18s, box-shadow .18s; }
         .feat-card:hover { transform: translateY(-4px); box-shadow:0 20px 40px -24px rgba(15,157,88,0.35); }
-        .feat-ic { width: 46px; height: 46px; border-radius: 12px; background: #e4f4ea; color: #0f9d58; display: flex; align-items: center; justify-content: center; margin-bottom: 16px; }
-        .feat-ic svg { width: 22px; height: 22px; }
+        .feat-ic { width:46px; height:46px; border-radius:12px; background:#e4f4ea; color:#0f9d58; display:flex; align-items:center; justify-content:center; margin-bottom:16px; }
+        .feat-ic svg { width:22px; height:22px; }
         .feat-card h3 { margin:0 0 8px; font-size:16px; font-weight:800; }
         .feat-card p { margin:0; color:#5b6f64; line-height:1.6; font-size:14px; }
-        .hero-glow { position:absolute; width:420px; height:420px; background:radial-gradient(circle, rgba(25,194,107,0.35), transparent 65%); filter:blur(20px); top:-40px; right:-30px; }
+        .why-card { padding: 4px 0; }
+        .why-card svg { color:#0f9d58; width:24px; height:24px; margin-bottom:12px; }
+        .why-card h3 { margin:0 0 6px; font-size:16px; font-weight:800; }
+        .why-card p { margin:0; color:#5b6f64; line-height:1.65; font-size:14px; }
+        .hero-glow { position:absolute; width:440px; height:440px; background:radial-gradient(circle, rgba(25,194,107,0.35), transparent 65%); filter:blur(24px); top:-40px; right:-30px; }
       `}</style>
     </div>
   );

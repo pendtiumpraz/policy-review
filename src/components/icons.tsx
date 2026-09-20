@@ -35,3 +35,22 @@ export const BoltIcon = (p: P) => <S {...p}><path d="M13 2L3 14h7l-1 8 10-12h-7z
 export const LockIcon = (p: P) => <S {...p}><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 018 0v4" /></S>;
 export const TargetIcon = (p: P) => <S {...p}><circle cx="12" cy="12" r="9" /><circle cx="12" cy="12" r="5" /><circle cx="12" cy="12" r="1" /></S>;
 export const DocIcon = (p: P) => <S {...p}><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" /><path d="M14 2v6h6" /></S>;
+
+export const TrashIcon = (p: P) => <S {...p}><path d="M3 6h18" /><path d="M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6" /><path d="M8 6V4a2 2 0 012-2h4a2 2 0 012 2v2" /><path d="M10 11v6M14 11v6" /></S>;
+export const RestoreIcon = (p: P) => <S {...p}><path d="M3 12a9 9 0 109-9 9.75 9.75 0 00-6.74 2.74L3 8" /><path d="M3 3v5h5" /></S>;
+export const EyeIcon = (p: P) => <S {...p}><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z" /><circle cx="12" cy="12" r="3" /></S>;
+export const KeyIcon = (p: P) => <S {...p}><circle cx="7.5" cy="15.5" r="4.5" /><path d="M21 2l-9.6 9.6" /><path d="M15.5 7.5l3 3L22 7l-3-3" /></S>;
+export const PowerIcon = (p: P) => <S {...p}><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 11-12.8 0" /></S>;
+export const PlusIcon = (p: P) => <S {...p}><path d="M12 5v14M5 12h14" /></S>;
+
+/** PolicyReview brand logo — shield + check (compliance). Follows `--primary` (whitelabel). */
+export function Logo({ size = 30, tone = 'brand' }: { size?: number; tone?: 'brand' | 'light' | 'mono' }) {
+  const fill = tone === 'light' ? 'rgba(255,255,255,0.96)' : tone === 'mono' ? 'currentColor' : 'var(--primary, #0f9d58)';
+  const check = tone === 'light' ? '#0f9d58' : '#fff';
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" aria-hidden>
+      <path d="M16 2.6l11 4.3v9.6c0 6.6-4.4 11.3-11 13C9.4 27.8 5 23.1 5 16.5V6.9z" fill={fill} />
+      <path d="M11.2 16.1l3.3 3.2 6.4-6.6" stroke={check} strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}

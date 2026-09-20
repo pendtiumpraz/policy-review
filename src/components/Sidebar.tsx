@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { DashboardIcon, RegulationIcon, ReviewIcon, AiIcon, TeamIcon, SettingsIcon } from '@/components/icons';
+import { DashboardIcon, RegulationIcon, ReviewIcon, AiIcon, TeamIcon, SettingsIcon, Logo } from '@/components/icons';
 
 const MENU = [
   { href: '/dashboard', label: 'Dashboard', Icon: DashboardIcon },
@@ -19,7 +19,7 @@ export function Sidebar({ orgName, userEmail }: { orgName: string; userEmail: st
   return (
     <aside className="sidebar">
       <div className="sidebar-logo">
-        <div className="logo-mark">PR</div>
+        <Logo size={30} />
         <div style={{ overflow: 'hidden' }}>
           <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{orgName}</div>
           <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 400 }}>Policy Review</div>

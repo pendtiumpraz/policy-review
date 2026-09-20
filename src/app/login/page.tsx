@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { BoltIcon, LockIcon, TargetIcon } from '@/components/icons';
+import { BoltIcon, LockIcon, TargetIcon, Logo } from '@/components/icons';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function LoginPage() {
       <div className="auth-brand" style={{ flex: '1 1 52%', display: 'none' }}>
         <div style={{ padding: 40, maxWidth: 460 }}>
           <Link href="/" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, fontWeight: 800, fontSize: 20, color: '#fff', marginBottom: '13vh' }}>
-            <span style={{ display: 'inline-flex', width: 34, height: 34, borderRadius: 9, background: 'rgba(255,255,255,0.16)', color: '#fff', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 900, boxShadow: 'inset 0 0 0 1px rgba(255,255,255,0.25)' }}>PR</span>
+            <Logo size={34} tone="light" />
             PolicyReview<span style={{ opacity: 0.6 }}>.</span>
           </Link>
           <h1 style={{ color: '#fff', fontSize: 40, lineHeight: 1.15, fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 16px' }}>

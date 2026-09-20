@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { api } from '@/lib/client-api';
+import { EditIcon, TrashIcon, RestoreIcon } from '@/components/icons';
 
 interface Member { id: string; name: string | null; email: string; role: string; status: string; }
 
@@ -62,9 +63,9 @@ export default function TeamPage() {
                     <td>{m.email}</td>
                     <td><span className="badge badge-gray">{m.role}</span></td>
                     <td>
-                      <div className="flex gap-2">
-                        <button className="btn btn-sm btn-secondary" onClick={() => restore(m.id)}>Restore</button>
-                        <button className="btn btn-sm btn-danger" onClick={() => hardDelete(m.id)}>Hapus Permanen</button>
+                      <div className="row-actions">
+                        <button className="icon-btn" title="Restore" onClick={() => restore(m.id)}><RestoreIcon /></button>
+                        <button className="icon-btn danger" title="Hapus permanen" onClick={() => hardDelete(m.id)}><TrashIcon /></button>
                       </div>
                     </td>
                   </tr>
@@ -77,9 +78,9 @@ export default function TeamPage() {
                   <td>{m.email}</td>
                   <td><span className={`badge ${m.role === 'admin' ? 'badge-blue' : 'badge-gray'}`}>{m.role}</span></td>
                   <td>
-                    <div className="flex gap-2">
-                      <button className="btn btn-sm btn-secondary" onClick={() => setDrawer({ open: true, edit: m })}>Edit</button>
-                      <button className="btn btn-sm btn-danger" onClick={() => remove(m.id)}>Hapus</button>
+                    <div className="row-actions">
+                      <button className="icon-btn" title="Edit" onClick={() => setDrawer({ open: true, edit: m })}><EditIcon /></button>
+                      <button className="icon-btn danger" title="Hapus" onClick={() => remove(m.id)}><TrashIcon /></button>
                     </div>
                   </td>
                 </tr>

@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import Link from 'next/link';
 import { api } from '@/lib/client-api';
+import { EyeIcon, TrashIcon, RestoreIcon } from '@/components/icons';
 
 interface Review {
   id: string;
@@ -98,16 +99,16 @@ export default function ReviewsPage() {
                     <td><span className={`badge ${s.cls}`}>{s.label}</span></td>
                     <td style={{ color: 'var(--text-muted)' }}>{new Date(r.created_at).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
                     <td>
-                      <div className="flex gap-2">
+                      <div className="row-actions">
                         {mode === 'active' ? (
                           <>
-                            <Link href={`/reviews/${r.id}`} className="btn btn-sm btn-secondary">Lihat</Link>
-                            <button className="btn btn-sm btn-danger" onClick={() => del(r.id)}>Hapus</button>
+                            <Link href={`/reviews/${r.id}`} className="icon-btn" title="Lihat"><EyeIcon /></Link>
+                            <button className="icon-btn danger" title="Hapus" onClick={() => del(r.id)}><TrashIcon /></button>
                           </>
                         ) : (
                           <>
-                            <button className="btn btn-sm btn-secondary" onClick={() => restore(r.id)}>Restore</button>
-                            <button className="btn btn-sm btn-danger" onClick={() => hardDelete(r.id)}>Hapus Permanen</button>
+                            <button className="icon-btn" title="Restore" onClick={() => restore(r.id)}><RestoreIcon /></button>
+                            <button className="icon-btn danger" title="Hapus permanen" onClick={() => hardDelete(r.id)}><TrashIcon /></button>
                           </>
                         )}
                       </div>
