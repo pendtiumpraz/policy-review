@@ -32,9 +32,9 @@ export async function api<T = unknown>(path: string, init?: ApiInit): Promise<T>
     headers: { ...headers, ...(init?.headers as Record<string, string>) },
   });
 
-  const data = await res.json().catch(() => ({ message: 'Unexpected error' }));
+  const data = await res.json().catch(() => ({ message: 'Terjadi kesalahan pada server' }));
   if (!res.ok) {
-    throw new ApiError(data?.message || 'Terjadi kesalahan', res.status);
+    throw new ApiError(data?.message || 'Terjadi kesalahan pada server', res.status);
   }
   return data as T;
 }

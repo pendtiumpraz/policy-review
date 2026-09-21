@@ -140,37 +140,59 @@ export async function resolveAi(
   };
 }
 
-/** Enforce token quota (0 = unlimited) against the CURRENT month counter. */
+/**
+ * Enforce token quota (0 = unlimited) against the CURRENT month counter.
+ * Resilient: if the counters table is missing (migration 0005 not applied yet),
+ * fall back to the lifetime SUM over usage_records.
+ */
 async function enforceQuota(tenantId: string): Promise<void> {
   const [tenant] = await db.select().from(tenants).where(eq(tenants.id, tenantId)).limit(1);
   if (!tenant || tenant.tokenQuota <= 0) return;
   const period = new Date().toISOString().slice(0, 7);
-  const row = await db
-    .select({ total: sql<number>`coalesce(sum(tokens_in + tokens_out), 0)` })
-    .from(usageCounters)
-    .where(
-      and(
-        eq(usageCounters.tenantId, tenantId),
-        eq(usageCounters.period, period),
-        isNull(usageCounters.deletedAt),
-      ),
-    );
-  const used = Number(row[0]?.total ?? 0);
+  let used = 0;
+  try {
+    const row = await db
+      .select({ total: sql<number>`coalesce(sum(tokens_in + tokens_out), 0)` })
+      .from(usageCounters)
+      .where(
+        and(
+          eq(usageCounters.tenantId, tenantId),
+          eq(usageCounters.period, period),
+          isNull(usageCounters.deletedAt),
+        ),
+      );
+    used = Number(row[0]?.total ?? 0);
+  } catch (e) {
+    console.error('[quota] Baca usage_counters gagal — fallback ke usage_records (lifetime):', e);
+    const row = await db
+      .select({ total: sql<number>`coalesce(sum(input_tokens + output_tokens), 0)` })
+      .from(usageRecords)
+      .where(eq(usageRecords.tenantId, tenantId));
+    used = Number(row[0]?.total ?? 0);
+  }
   if (used >= tenant.tokenQuota) throw new AiQuotaExceeded();
 }
 
-/** Atomic monthly counter increment (upsert per tenant+period). */
+/**
+ * Atomic monthly counter increment (upsert per tenant+period).
+ * Resilient: if the counters table is missing (migration 0005 not applied yet),
+ * skip the upsert — the usage_records audit row is still written by runAi.
+ */
 async function bumpCounter(tenantId: string, tokensIn: number, tokensOut: number): Promise<void> {
   const period = new Date().toISOString().slice(0, 7);
-  await pgSql`
-    insert into usage_counters (tenant_id, period, tokens_in, tokens_out)
-    values (${tenantId}, ${period}, ${tokensIn}, ${tokensOut})
-    on conflict (tenant_id, period) where deleted_at is null
-    do update set
-      tokens_in = usage_counters.tokens_in + excluded.tokens_in,
-      tokens_out = usage_counters.tokens_out + excluded.tokens_out,
-      updated_at = now()
-  `;
+  try {
+    await pgSql`
+      insert into usage_counters (tenant_id, period, tokens_in, tokens_out)
+      values (${tenantId}, ${period}, ${tokensIn}, ${tokensOut})
+      on conflict (tenant_id, period) where deleted_at is null
+      do update set
+        tokens_in = usage_counters.tokens_in + excluded.tokens_in,
+        tokens_out = usage_counters.tokens_out + excluded.tokens_out,
+        updated_at = now()
+    `;
+  } catch (e) {
+    console.error('[quota] Upsert usage_counters gagal — counter dilewati:', e);
+  }
 }
 
 export async function runAi(

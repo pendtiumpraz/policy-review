@@ -13,6 +13,9 @@ export async function storeFile(
   folder: string,
   file: File,
 ): Promise<StoredFile> {
+  if (!process.env.BLOB_READ_WRITE_TOKEN) {
+    throw new Error('BLOB_READ_WRITE_TOKEN belum dikonfigurasi (cek environment variables)');
+  }
   const bytes = Buffer.from(await file.arrayBuffer());
   const safe = file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
   const pathname = `${tenantId}/${folder}/${Date.now()}-${safe}`;
@@ -20,31 +23,38 @@ export async function storeFile(
   return { url: blob.url, pathname: blob.pathname, fileName: file.name };
 }
 
-/** Resolve pdf-parse with CJS/ESM interop (avoids static default-export error). */
+/**
+ * Resolve PDF text via pdf-parse.
+ * pdf-parse v2 exposes the `PDFParse` class (new PDFParse({ data }) + getText());
+ * interop with v1 (callable default export) is kept defensively.
+ */
 async function pdfText(bytes: Buffer): Promise<string> {
   const mod: any = await import('pdf-parse');
-  const parser = mod.default || mod.PDFParse || mod;
-  const res = await parser(bytes);
-  return (res && res.text) || '';
+  const PdfParser = mod.PDFParse ?? mod.default;
+  const parser = new PdfParser({ data: new Uint8Array(bytes) });
+  try {
+    const res = typeof parser.getText === 'function' ? await parser.getText() : await parser;
+    return (res && res.text) || '';
+  } finally {
+    if (parser && typeof parser.destroy === 'function') {
+      await parser.destroy().catch(() => {});
+    }
+  }
 }
 
-/** Extract text from a PDF/DOCX/TXT/MD file. Returns '' on any failure. */
+/** Extract text from a PDF/DOCX/TXT/MD file. Throws on failure so callers can report it. */
 export async function extractText(file: File): Promise<string> {
   const name = file.name.toLowerCase();
   const bytes = Buffer.from(await file.arrayBuffer());
-  try {
-    if (name.endsWith('.pdf')) {
-      return await pdfText(bytes);
-    }
-    if (name.endsWith('.docx')) {
-      const res = await mammoth.extractRawText({ buffer: bytes });
-      return res.value || '';
-    }
-    if (name.endsWith('.doc')) {
-      return '(Format .doc lama tidak didukung otomatis — silakan konversi ke .docx atau PDF, lalu gunakan tempel teks.)';
-    }
-    return bytes.toString('utf8');
-  } catch {
-    return '';
+  if (name.endsWith('.pdf')) {
+    return (await pdfText(bytes)).trim();
   }
+  if (name.endsWith('.docx')) {
+    const res = await mammoth.extractRawText({ buffer: bytes });
+    return (res.value || '').trim();
+  }
+  if (name.endsWith('.doc')) {
+    return '(Format .doc lama tidak didukung otomatis — silakan konversi ke .docx atau PDF, lalu gunakan tempel teks.)';
+  }
+  return bytes.toString('utf8');
 }

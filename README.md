@@ -40,6 +40,17 @@ Variabel wajib di `.env`: `DATABASE_URL`, `BLOB_READ_WRITE_TOKEN`, `NEXTAUTH_URL
 3. Set environment variables (salin dari `.env`), termasuk `DATABASE_URL` dan `BLOB_READ_WRITE_TOKEN`.
 4. Deploy. Jalankan migrasi sekali (`npm run db:migrate`) via Vercel CLI atau lokal yang menunjuk ke DB produksi.
 
+## Deploy / pasca-deploy
+
+Setelah **setiap deploy**, wajib menjalankan migrasi DB terhadap database produksi agar skema selalu sinkron (mis. tabel `usage_counters` dari migrasi 0005 — tanpa ini pembuatan review akan gagal karena relasi tidak ditemukan):
+
+```bash
+# pastikan DATABASE_URL menunjuk ke database produksi
+npm run db:migrate
+```
+
+Migrasi saat ini: `0001_init`, `0002_9inference`, `0003_reset_active`, `0004_9inference_package`, `0005_usage_counters`.
+
 ## Login
 
 Akun default (superadmin) disimpan saat migrasi pertama:
