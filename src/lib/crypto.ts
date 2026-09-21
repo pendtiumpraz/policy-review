@@ -11,11 +11,14 @@ import {
 
 function key(): Buffer {
   const raw = process.env.CREDENTIALS_ENCRYPTION_KEY;
-  if (!raw) return Buffer.from(process.env.NEXTAUTH_SECRET || 'dev', 'utf8').subarray(0, 32);
+  if (!raw) {
+    throw new Error('CREDENTIALS_ENCRYPTION_KEY must be a 32-byte base64 string');
+  }
   const buf = Buffer.from(raw, 'base64');
-  if (buf.length === 32) return buf;
-  // Fallback: hash to 32 bytes
-  return require('node:crypto').createHash('sha256').update(raw).digest();
+  if (buf.length !== 32 || buf.toString('base64') !== raw) {
+    throw new Error('CREDENTIALS_ENCRYPTION_KEY must be a 32-byte base64 string');
+  }
+  return buf;
 }
 
 export function encryptSecret(plain: string): string {

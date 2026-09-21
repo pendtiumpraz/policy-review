@@ -112,21 +112,31 @@ export async function generateReview(
     }
   }
 
-  const out = await runAi(tenantId, buildSystemPrompt(), buildUserPrompt(input, briefs), {
-    operation: 'review',
-    modelId: input.modelId,
-    providerId: input.providerId,
-    maxTokens: 5000,
-  });
+  const systemPrompt = buildSystemPrompt();
+  const userPrompt = buildUserPrompt(input, briefs);
+  const baseOpts = { modelId: input.modelId, providerId: input.providerId, maxTokens: 5000 };
 
-  const raw = parseAiJson<Parameters<typeof normalizeResult>[0]>(out.text);
+  const out = await runAi(tenantId, systemPrompt, userPrompt, { operation: 'review', ...baseOpts });
+
+  const RETRY_PROMPT =
+    'Output sebelumnya bukan JSON valid. Kembalikan HANYA JSON valid sesuai format yang diminta, perbaiki kesalahannya.';
+
+  let used = out;
+  let raw: Parameters<typeof normalizeResult>[0];
+  try {
+    raw = parseAiJson<Parameters<typeof normalizeResult>[0]>(used.text);
+  } catch {
+    used = await runAi(tenantId, systemPrompt, RETRY_PROMPT, { operation: 'review', ...baseOpts });
+    raw = parseAiJson<Parameters<typeof normalizeResult>[0]>(used.text);
+  }
+
   const normalized = normalizeResult(raw, regulationTitles);
 
   return {
     ...normalized,
-    providerId: out.resolved.providerId,
-    modelId: out.resolved.modelId,
-    inputTokens: out.inputTokens,
-    outputTokens: out.outputTokens,
+    providerId: used.resolved.providerId,
+    modelId: used.resolved.modelId,
+    inputTokens: used.inputTokens,
+    outputTokens: used.outputTokens,
   };
 }

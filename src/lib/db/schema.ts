@@ -9,6 +9,7 @@ import {
   boolean,
   uniqueIndex,
 } from 'drizzle-orm/pg-core';
+import { sql } from 'drizzle-orm';
 import type { ReviewResult, RegulationChecklistEntry } from '@/lib/types';
 
 /**
@@ -100,6 +101,25 @@ export const tenantAiKeys = pgTable('tenant_ai_keys', {
 }));
 
 /* ── usage / quota telemetry ─────────────────────────────────────── */
+
+/* ── monthly usage counters (atomic quota enforcement) ───────────── */
+export const usageCounters = pgTable('usage_counters', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  tenantId: uuid('tenant_id').notNull(),
+  period: text('period').notNull(), // 'YYYY-MM'
+  tokensIn: integer('tokens_in').default(0).notNull(),
+  tokensOut: integer('tokens_out').default(0).notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+  deletedAt: timestamp('deleted_at'),
+}, (t) => ({
+  scopeIdx: index('idx_usage_counters_scope').on(t.tenantId, t.period),
+  deletedIdx: index('idx_usage_counters_deleted_at').on(t.deletedAt),
+  uqScope: uniqueIndex('uq_usage_counters_tenant_period')
+    .on(t.tenantId, t.period)
+    .where(sql`deleted_at is null`),
+}));
+
 export const usageRecords = pgTable('usage_records', {
   id: uuid('id').defaultRandom().primaryKey(),
   tenantId: uuid('tenant_id').notNull(),

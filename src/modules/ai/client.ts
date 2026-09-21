@@ -2,6 +2,9 @@ import OpenAI from 'openai';
 import Anthropic from '@anthropic-ai/sdk';
 import { GoogleGenAI } from '@google/genai';
 
+const LLM_TIMEOUT_MS = 50_000;
+const MAX_TEXT_LENGTH = 30_000;
+
 export interface AiRequest {
   provider: string;
   model: string;
@@ -18,17 +21,28 @@ export interface AiResult {
 /**
  * Provider-agnostic chat. Supports OpenAI-compatible (openai/deepseek),
  * Anthropic, and Google Gemini. Always returns text + token usage.
+ * Every provider call is bounded by a 50s timeout; returned text is capped
+ * at 30k chars; errors are rethrown with a readable prefix.
  */
 export async function chat(r: AiRequest, systemPrompt: string, userPrompt: string, maxTokens = 4000): Promise<AiResult> {
-  if (r.provider === 'anthropic') return chatAnthropic(r, systemPrompt, userPrompt, maxTokens);
-  if (r.provider === 'google') return chatGoogle(r, systemPrompt, userPrompt, maxTokens);
-  return chatOpenAiCompatible(r, systemPrompt, userPrompt, maxTokens);
+  try {
+    let result: AiResult;
+    if (r.provider === 'anthropic') result = await chatAnthropic(r, systemPrompt, userPrompt, maxTokens);
+    else if (r.provider === 'google') result = await chatGoogle(r, systemPrompt, userPrompt, maxTokens);
+    else result = await chatOpenAiCompatible(r, systemPrompt, userPrompt, maxTokens);
+    return { ...result, text: result.text.slice(0, MAX_TEXT_LENGTH) };
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`LLM call failed: ${message}`);
+  }
 }
 
 async function chatOpenAiCompatible(r: AiRequest, systemPrompt: string, userPrompt: string, maxTokens: number): Promise<AiResult> {
   const client = new OpenAI({
     apiKey: r.apiKey,
     baseURL: r.baseUrl || undefined,
+    timeout: LLM_TIMEOUT_MS,
+    maxRetries: 0,
   });
   const res = await client.chat.completions.create({
     model: r.model,
@@ -48,14 +62,22 @@ async function chatOpenAiCompatible(r: AiRequest, systemPrompt: string, userProm
 }
 
 async function chatAnthropic(r: AiRequest, systemPrompt: string, userPrompt: string, maxTokens: number): Promise<AiResult> {
-  const client = new Anthropic({ apiKey: r.apiKey, baseURL: r.baseUrl || undefined });
-  const res = await client.messages.create({
-    model: r.model,
-    max_tokens: maxTokens,
-    temperature: 0.2,
-    system: systemPrompt,
-    messages: [{ role: 'user', content: userPrompt }],
+  const client = new Anthropic({
+    apiKey: r.apiKey,
+    baseURL: r.baseUrl || undefined,
+    timeout: LLM_TIMEOUT_MS,
+    maxRetries: 0,
   });
+  const res = await client.messages.create(
+    {
+      model: r.model,
+      max_tokens: maxTokens,
+      temperature: 0.2,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
+    },
+    { timeout: LLM_TIMEOUT_MS },
+  );
   const text = res.content
     .map((b) => (b.type === 'text' ? (b as { text?: string }).text || '' : ''))
     .join('');
@@ -74,6 +96,7 @@ async function chatGoogle(r: AiRequest, systemPrompt: string, userPrompt: string
       systemInstruction: systemPrompt,
       maxOutputTokens: maxTokens,
       temperature: 0.2,
+      httpOptions: { timeout: LLM_TIMEOUT_MS },
     },
     contents: userPrompt,
   });
