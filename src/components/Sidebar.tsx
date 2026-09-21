@@ -2,7 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { DashboardIcon, RegulationIcon, ReviewIcon, AiIcon, TeamIcon, SettingsIcon, Logo } from '@/components/icons';
+import { signOut } from 'next-auth/react';
+import { DashboardIcon, RegulationIcon, ReviewIcon, AiIcon, TeamIcon, SettingsIcon, Logo, LogOutIcon } from '@/components/icons';
 
 const MENU = [
   { href: '/dashboard', label: 'Dashboard', Icon: DashboardIcon },
@@ -13,6 +14,12 @@ const MENU = [
   { href: '/settings', label: 'Pengaturan', Icon: SettingsIcon },
 ];
 
+function initials(email: string): string {
+  const parts = (email.split('@')[0] || '').split(/[._\-]+/).filter(Boolean);
+  const letters = parts.map((p) => p[0].toUpperCase()).join('').slice(0, 2);
+  return letters || 'U';
+}
+
 export function Sidebar({ orgName, userEmail }: { orgName: string; userEmail: string }) {
   const pathname = usePathname();
 
@@ -20,9 +27,9 @@ export function Sidebar({ orgName, userEmail }: { orgName: string; userEmail: st
     <aside className="sidebar">
       <div className="sidebar-logo">
         <Logo size={30} />
-        <div style={{ overflow: 'hidden' }}>
-          <div style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{orgName}</div>
-          <div style={{ fontSize: 10, color: '#94a3b8', fontWeight: 400 }}>Policy Review</div>
+        <div className="brand-text">
+          <div className="brand-name">{orgName}</div>
+          <div className="brand-caption">Policy Review</div>
         </div>
       </div>
       <nav>
@@ -36,8 +43,15 @@ export function Sidebar({ orgName, userEmail }: { orgName: string; userEmail: st
           );
         })}
       </nav>
-      <div style={{ padding: 14, borderTop: '1px solid rgba(255,255,255,0.08)', fontSize: 12, color: '#94a3b8' }}>
-        {userEmail}
+      <div className="side-foot">
+        <div className="avatar">{initials(userEmail)}</div>
+        <div className="who">
+          <b>{userEmail.split('@')[0]}</b>
+          <small>{userEmail}</small>
+        </div>
+        <button className="btn btn-ghost btn-icon" title="Keluar" onClick={() => signOut({ callbackUrl: '/login' })}>
+          <LogOutIcon />
+        </button>
       </div>
     </aside>
   );

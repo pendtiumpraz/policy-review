@@ -4,7 +4,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { api } from '@/lib/client-api';
-import { AiIcon, ReviewIcon, TeamIcon, EditIcon, TrashIcon, RestoreIcon, KeyIcon, PowerIcon, PlusIcon, Logo } from '@/components/icons';
+import { AiIcon, ReviewIcon, TeamIcon, EditIcon, TrashIcon, RestoreIcon, KeyIcon, PowerIcon, PlusIcon, Logo, LogOutIcon } from '@/components/icons';
 
 interface Provider { id: string; code: string; name: string; enabled: boolean; baseUrl: string | null; }
 interface Model { id: string; providerId: string; providerName: string; name: string; modelId: string; enabled: boolean; }
@@ -99,8 +99,10 @@ export default function AdminPage() {
             </button>
           ))}
         </nav>
-        <div style={{ padding: 14, borderTop: '1px solid rgba(255,255,255,0.08)' }}>
-          <button className="btn btn-secondary btn-sm" style={{ width: '100%' }} onClick={() => signOut({ callbackUrl: '/login' })}>Keluar</button>
+        <div className="side-foot">
+          <div className="avatar">SA</div>
+          <div className="who"><b>Superadmin</b><small>Platform</small></div>
+          <button className="btn btn-ghost btn-icon" title="Keluar" onClick={() => signOut({ callbackUrl: '/login' })}><LogOutIcon /></button>
         </div>
       </aside>
 

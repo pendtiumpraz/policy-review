@@ -43,6 +43,8 @@ export const KeyIcon = (p: P) => <S {...p}><circle cx="7.5" cy="15.5" r="4.5" />
 export const PowerIcon = (p: P) => <S {...p}><path d="M12 2v10" /><path d="M18.4 6.6a9 9 0 11-12.8 0" /></S>;
 export const PlusIcon = (p: P) => <S {...p}><path d="M12 5v14M5 12h14" /></S>;
 
+export const LogOutIcon = (p: P) => <S {...p}><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4" /><path d="M16 17l5-5-5-5" /><path d="M21 12H9" /></S>;
+
 /** PolicyReview brand logo — shield + check (compliance). Follows `--primary` (whitelabel). */
 export function Logo({ size = 30, tone = 'brand' }: { size?: number; tone?: 'brand' | 'light' | 'mono' }) {
   const fill = tone === 'light' ? 'rgba(255,255,255,0.96)' : tone === 'mono' ? 'currentColor' : 'var(--primary, #0f9d58)';

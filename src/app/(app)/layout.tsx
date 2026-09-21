@@ -13,10 +13,18 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   if (user.role === 'superadmin') redirect('/admin');
 
   const tenant = await getTenant(user.tenantId);
-  const primary = tenant?.brandPrimaryColor || '#10b981';
+  const primary = tenant?.brandPrimaryColor || '#059669';
+
+  const style = {
+    '--primary': primary,
+    '--primary-dark': primary,
+    '--signal': primary,
+    '--signal-strong': primary,
+    '--tint-signal': `color-mix(in srgb, ${primary} 10%, transparent)`,
+  } as React.CSSProperties;
 
   return (
-    <div className="app-layout" style={{ ['--primary' as string]: primary, ['--primary-dark' as string]: primary } as React.CSSProperties}>
+    <div className="app-layout" style={style}>
       <Sidebar orgName={tenant?.name || 'Organisasi'} userEmail={session.user.email || ''} />
       <main className="app-main">
         <Topbar userName={session.user.name} />

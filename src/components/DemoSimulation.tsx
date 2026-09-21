@@ -47,7 +47,7 @@ export default function DemoSimulation() {
             <div className="demo-drop">
               <UploadIcon2 />
               <div style={{ fontWeight: 800, marginTop: 8 }}>Seret & letakkan dokumen</div>
-              <div style={{ color: '#7c8ba0', fontSize: 12 }}>PDF / DOCX / TXT · maks 10 MB</div>
+              <div style={{ color: '#8494A8', fontSize: 12 }}>PDF / DOCX / TXT · maks 10 MB</div>
               <button className="btn btn-primary btn-sm" onClick={() => setStep(1)}>Pilih dokumen contoh</button>
             </div>
           )}
@@ -64,7 +64,7 @@ export default function DemoSimulation() {
                   <input type="checkbox" checked={checked.includes(r.id)} onChange={() => toggle(r.id)} />
                   <div>
                     <div style={{ fontWeight: 700 }}>{r.t}</div>
-                    <div style={{ fontSize: 11, color: '#7c8ba0' }}>{r.s}</div>
+                    <div style={{ fontSize: 11, color: '#8494A8' }}>{r.s}</div>
                   </div>
                 </label>
               ))}
@@ -79,16 +79,16 @@ export default function DemoSimulation() {
               <div className="demo-score">
                 <div className="ring"><span>86</span></div>
                 <div className="demo-score-labels">
-                  <div><b style={{ color: '#19c26b' }}>12</b> Patuh</div>
+                  <div><b style={{ color: '#34D399' }}>12</b> Patuh</div>
                   <div><b style={{ color: '#f59e0b' }}>3</b> Sebagian</div>
                   <div><b style={{ color: '#ef4444' }}>1</b> Kesenjangan</div>
                 </div>
               </div>
               <div className="demo-rows">
                 {[
-                  ['Dasar hukum pemrosesan', 'Patuh', '#19c26b'],
+                  ['Dasar hukum pemrosesan', 'Patuh', '#34D399'],
                   ['Masa retensi data', 'Sebagian', '#f59e0b'],
-                  ['Hak subjek data', 'Patuh', '#19c26b'],
+                  ['Hak subjek data', 'Patuh', '#34D399'],
                   ['Pemberitahuan insiden', 'Kesenjangan', '#ef4444'],
                 ].map(([t, s, c]) => (
                   <div key={t as string} className="demo-row">
@@ -103,26 +103,26 @@ export default function DemoSimulation() {
       </div>
 
       <style>{`
-        .demo-frame { height: 440px; border-radius: 18px; overflow: hidden; background: #0b1220; color: #e8f2ec; display: flex; flex-direction: column; }
+        .demo-frame { height: 440px; border-radius: 18px; overflow: hidden; background: #0b1220; color: #E9EEF4; display: flex; flex-direction: column; }
         .demo-topbar { display: flex; align-items: center; gap: 7px; padding: 13px 16px; background: #111b2b; border-bottom: 1px solid #1b2a3e; }
         .dot { width: 11px; height: 11px; border-radius: 50%; }
-        .demo-url { margin-left: 10px; font-size: 11px; color: #5b6e7d; background:#0f1a29; padding: 4px 12px; border-radius: 6px; }
+        .demo-url { margin-left: 10px; font-size: 11px; color: #64748B; background:#0f1a29; padding: 4px 12px; border-radius: 6px; }
         .demo-steps { display: flex; gap: 8px; padding: 14px 16px; border-bottom: 1px solid #16243a; }
-        .demo-step { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5b6e7d; cursor: pointer; }
+        .demo-step { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #64748B; cursor: pointer; }
         .demo-step .demo-step-num { width: 20px; height: 20px; border-radius: 50%; border: 1px solid #2a3b52; display: flex; align-items: center; justify-content: center; font-size: 11px; }
         .demo-step.on { color: #fff; font-weight: 700; }
-        .demo-step.on .demo-step-num { background: #19c26b; border-color: #19c26b; color: #fff; }
-        .demo-step.done .demo-step-num { background: #12331f; border-color: #19c26b; color: #19c26b; }
+        .demo-step.on .demo-step-num { background: #34D399; border-color: #34D399; color: #fff; }
+        .demo-step.done .demo-step-num { background: rgba(52,211,153,0.14); border-color: #34D399; color: #34D399; }
         .demo-body { flex: 1; padding: 20px; overflow: auto; }
-        .demo-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; border: 1.5px dashed #2a3b52; border-radius: 14px; color: #9fb2a8; }
+        .demo-drop { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; border: 1.5px dashed #2a3b52; border-radius: 14px; color: #8494A8; }
         .demo-check { display: flex; gap: 10px; align-items: flex-start; padding: 12px; border: 1px solid #22324a; border-radius: 10px; cursor: pointer; }
-        .demo-check.sel { border-color: #19c26b; background: rgba(25,194,107,0.08); }
+        .demo-check.sel { border-color: #34D399; background: rgba(52,211,153,0.08); }
         .demo-result { display: flex; gap: 18px; }
         .demo-score { display: flex; align-items: center; gap: 16px; }
-        .ring { width: 74px; height: 74px; border-radius: 50%; border: 4px solid #19c26b; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #19c26b; }
+        .ring { width: 74px; height: 74px; border-radius: 50%; border: 4px solid #34D399; display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 900; color: #34D399; }
         .demo-score-labels { display: flex; flex-direction: column; gap: 6px; font-size: 12px; }
         .demo-rows { flex: 1; display: flex; flex-direction: column; gap: 6px; }
-        .demo-row { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 12px; background: #131c2c; border-radius: 8px; color: #c3d2c9; }
+        .demo-row { display: flex; justify-content: space-between; font-size: 12px; padding: 8px 12px; background: #131c2c; border-radius: 8px; color: #CBD5E1; }
       `}</style>
     </div>
   );

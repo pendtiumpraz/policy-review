@@ -26,7 +26,7 @@ export default function LoginPage() {
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', background: '#f7faf8' }}>
+    <div style={{ minHeight: '100vh', display: 'flex', background: '#F1F5F9' }}>
       {/* Brand panel */}
       <div className="auth-brand" style={{ flex: '1 1 52%', display: 'none' }}>
         <div style={{ padding: 40, maxWidth: 460 }}>
@@ -35,7 +35,7 @@ export default function LoginPage() {
             PolicyReview<span style={{ opacity: 0.6 }}>.</span>
           </Link>
           <h1 style={{ color: '#fff', fontSize: 40, lineHeight: 1.15, fontWeight: 900, letterSpacing: '-0.03em', margin: '0 0 16px' }}>
-            Kepatuhan jadi<br />lebih <em style={{ fontStyle: 'normal', color: '#a8f0c6' }}>terukur</em>.
+            Kepatuhan jadi<br />lebih <em style={{ fontStyle: 'normal', color: '#34D399' }}>terukur</em>.
           </h1>
           <p style={{ color: 'rgba(255,255,255,0.78)', fontSize: 15, lineHeight: 1.7, marginBottom: 32 }}>
             Satu platform untuk mereview kebijakan & regulasi — data terisolasi per organisasi, AI agnostik, hasil bisa diedit.
@@ -62,7 +62,7 @@ export default function LoginPage() {
         <form onSubmit={submit} style={{ width: 380 }}>
           <div style={{ marginBottom: 28 }}>
             <h2 style={{ fontSize: 26, fontWeight: 900, margin: 0, letterSpacing: '-0.02em' }}>Selamat datang kembali</h2>
-            <p style={{ color: '#5b6f64', margin: '6px 0 0', fontSize: 14 }}>Masuk untuk melanjutkan ke dashboard.</p>
+            <p style={{ color: '#5B6B80', margin: '6px 0 0', fontSize: 14 }}>Masuk untuk melanjutkan ke dashboard.</p>
           </div>
 
           <div className="form-group">
@@ -72,11 +72,11 @@ export default function LoginPage() {
           <div className="form-group">
             <label className="form-label" style={{ display: 'flex', justifyContent: 'space-between' }}>
               Password
-              <span style={{ color: '#9aada2', fontWeight: 500, cursor: 'default' }}>Lupa?</span>
+              <span style={{ color: '#5B6B80', fontWeight: 500, cursor: 'default' }}>Lupa?</span>
             </label>
             <div style={{ position: 'relative' }}>
               <input className="form-input" style={{ padding: '12px 44px 12px 14px' }} type={show ? 'text' : 'password'} value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-              <button type="button" onClick={() => setShow((s) => !s)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', cursor: 'pointer', color: '#7c9085', fontSize: 13, fontWeight: 700 }}>
+              <button type="button" onClick={() => setShow((s) => !s)} style={{ position: 'absolute', right: 14, top: '50%', transform: 'translateY(-50%)', border: 'none', background: 'none', cursor: 'pointer', color: '#7E8FA6', fontSize: 13, fontWeight: 700 }}>
                 {show ? 'Sembunyi' : 'Lihat'}
               </button>
             </div>
@@ -88,17 +88,17 @@ export default function LoginPage() {
             {loading ? 'Masuk...' : 'Masuk'}
           </button>
 
-          <p style={{ textAlign: 'center', marginTop: 22, fontSize: 14, color: '#5b6f64' }}>
-            Belum punya organisasi? <Link href="/register" style={{ color: '#0f9d58', fontWeight: 700 }}>Daftar gratis</Link>
+          <p style={{ textAlign: 'center', marginTop: 22, fontSize: 14, color: '#5B6B80' }}>
+            Belum punya organisasi? <Link href="/register" style={{ color: '#059669', fontWeight: 700 }}>Daftar gratis</Link>
           </p>
         </form>
       </div>
 
       <style>{`
-        .auth-brand { display:flex; flex-direction:column; justify-content:center; background: linear-gradient(150deg,#08633a 0%,#0f9d58 55%,#19c26b 100%); position:relative; overflow:hidden; }
+        .auth-brand { display:flex; flex-direction:column; justify-content:center; background: linear-gradient(150deg,#047857 0%,#059669 55%,#34D399 100%); position:relative; overflow:hidden; }
         .auth-brand::after { content:''; position:absolute; width:480px; height:480px; border-radius:50%; background:radial-gradient(circle, rgba(255,255,255,0.14), transparent 60%); right:-120px; bottom:-140px; }
         @media (min-width: 860px) { .auth-brand { display:flex !important; } }
-        .cta { background: linear-gradient(135deg,#0f9d58,#19c26b); color:#fff; border-radius:10px; font-weight:800; box-shadow:0 12px 26px -12px rgba(15,157,88,0.7); transition: transform .15s, box-shadow .15s; }
+        .cta { background: linear-gradient(135deg,#059669,#34D399); color:#fff; border-radius:10px; font-weight:800; box-shadow:0 12px 26px -12px rgba(5,150,105,0.7); transition: transform .15s, box-shadow .15s; }
         .cta:hover { transform: translateY(-2px); }
         .cta:disabled { opacity:.6; cursor:not-allowed; }
       `}</style>
