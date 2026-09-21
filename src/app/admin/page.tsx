@@ -8,7 +8,7 @@ import { AiIcon, ReviewIcon, TeamIcon, EditIcon, TrashIcon, RestoreIcon, KeyIcon
 
 interface Provider { id: string; code: string; name: string; enabled: boolean; baseUrl: string | null; }
 interface Model { id: string; providerId: string; providerName: string; name: string; modelId: string; enabled: boolean; }
-interface Tenant { id: string; name: string | null; slug: string | null; tokenQuota: number | null; brandPrimaryColor: string | null; }
+interface Tenant { id: string; name: string | null; slug: string | null; tokenQuota: number | null; brandPrimaryColor: string | null; admin_email: string | null; }
 interface Key { id: string; providerId: string; }
 
 type Tab = 'providers' | 'models' | 'tenants';
@@ -39,6 +39,7 @@ export default function AdminPage() {
   const [providerForm, setProviderForm] = useState<{ open: boolean; edit?: Provider }>({ open: false });
   const [modelForm, setModelForm] = useState<{ open: boolean; edit?: Model }>({ open: false });
   const [showTenant, setShowTenant] = useState(false);
+  const [tenantForm, setTenantForm] = useState<{ open: boolean; edit?: Tenant }>({ open: false });
   const [keyFor, setKeyFor] = useState<Provider | null>(null);
 
   const load = useCallback(async () => {
@@ -180,21 +181,23 @@ export default function AdminPage() {
 
               {tab === 'tenants' && (
                 <>
-                  <thead><tr><th>Nama</th><th>Slug</th><th>Kuota Token</th><th>Warna</th><th /><th /></tr></thead>
+                  <thead><tr><th>Nama</th><th>Slug</th><th>Kuota Token</th><th>Warna</th><th>Email</th><th /><th /></tr></thead>
                   <tbody>
                     {trashMode ? tenantsTrash.map((t) => (
                       <tr key={t.id} style={{ opacity: 0.75 }}>
                         <td style={{ fontWeight: 600 }}>{t.name ?? '—'}</td><td>{t.slug ?? '—'}</td><td>{fmtQuota(t.tokenQuota)}</td>
                         <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brandPrimaryColor || '#0f9d58' }} /></td>
+                        <td>{t.admin_email || '—'}</td>
                         <td /><td><div className="row-actions"><button className="icon-btn" title="Restore" onClick={() => restoreTenant(t.id)}><RestoreIcon /></button><button className="icon-btn danger" title="Hapus permanen" onClick={() => forceTenant(t.id)}><TrashIcon /></button></div></td>
                       </tr>
                     )) : tenants.map((t) => (
                       <tr key={t.id}>
                         <td style={{ fontWeight: 600 }}>{t.name ?? '—'}</td><td>{t.slug ?? '—'}</td><td>{fmtQuota(t.tokenQuota)}</td>
                         <td><span style={{ display: 'inline-block', width: 16, height: 16, borderRadius: 4, background: t.brandPrimaryColor || '#0f9d58' }} /></td>
+                        <td>{t.admin_email || '—'}</td>
                         <td /><td>
                           <div className="row-actions">
-                            <button className="icon-btn" title="Set kuota" onClick={async () => { const q = prompt('Kuota token (0 = tanpa batas):', String(t.tokenQuota ?? 0)); if (q === null) return; await api(`/api/tenants/${t.id}`, { method: 'PATCH', body: { tokenQuota: Number(q) || 0 } }); load(); }}><EditIcon /></button>
+                            <button className="icon-btn" title="Edit" onClick={() => setTenantForm({ open: true, edit: t })}><EditIcon /></button>
                             <button className="icon-btn danger" title="Hapus" onClick={() => delTenant(t.id)}><TrashIcon /></button>
                           </div>
                         </td>
@@ -211,6 +214,7 @@ export default function AdminPage() {
       {providerForm.open && <ProviderForm edit={providerForm.edit} onClose={() => setProviderForm({ open: false })} onSaved={() => { setProviderForm({ open: false }); load(); }} />}
       {modelForm.open && <ModelForm providers={providers} edit={modelForm.edit} onClose={() => setModelForm({ open: false })} onSaved={() => { setModelForm({ open: false }); load(); }} />}
       {showTenant && <TenantForm onClose={() => setShowTenant(false)} onSaved={() => { setShowTenant(false); load(); }} />}
+      {tenantForm.open && tenantForm.edit && <TenantEditForm edit={tenantForm.edit} onClose={() => setTenantForm({ open: false })} onSaved={() => { setTenantForm({ open: false }); load(); }} />}
       {keyFor && <KeyForm provider={keyFor} onClose={() => setKeyFor(null)} onSaved={() => { setKeyFor(null); load(); }} />}
     </div>
   );
@@ -275,6 +279,22 @@ function TenantForm({ onClose, onSaved }: { onClose: () => void; onSaved: () => 
     <div className="form-group"><label className="form-label">Nama</label><input className="form-input" value={name} onChange={(e) => setName(e.target.value)} /></div>
     <div className="form-group"><label className="form-label">Slug</label><input className="form-input" value={slug} onChange={(e) => setSlug(e.target.value)} /></div>
     <div className="form-group"><label className="form-label">Kuota Token (0 = ∞)</label><input className="form-input" type="number" value={tokenQuota} onChange={(e) => setTokenQuota(Number(e.target.value))} /></div>
+  </FormShell>;
+}
+
+function TenantEditForm({ edit, onClose, onSaved }: { edit: Tenant; onClose: () => void; onSaved: () => void }) {
+  const [name, setName] = useState(edit.name ?? '');
+  const [slug, setSlug] = useState(edit.slug ?? '');
+  const [tokenQuota, setTokenQuota] = useState(edit.tokenQuota ?? 0);
+  const [brandPrimaryColor, setBrandPrimaryColor] = useState(edit.brandPrimaryColor || '#10b981');
+  const [adminEmail, setAdminEmail] = useState(edit.admin_email ?? '');
+  const colorInput = /^#[0-9a-fA-F]{6}$/.test(brandPrimaryColor.trim()) ? brandPrimaryColor.trim().toLowerCase() : '#10b981';
+  return <FormShell title="Edit Tenant" onClose={onClose} onSubmit={() => api(`/api/tenants/${edit.id}`, { method: 'PATCH', body: { name, slug, tokenQuota: Number(tokenQuota) || 0, brandPrimaryColor, adminEmail } })} onSaved={onSaved}>
+    <div className="form-group"><label className="form-label">Nama Organisasi</label><input className="form-input" value={name} onChange={(e) => setName(e.target.value)} /></div>
+    <div className="form-group"><label className="form-label">Slug</label><input className="form-input" value={slug} onChange={(e) => setSlug(e.target.value)} /></div>
+    <div className="form-group"><label className="form-label">Kuota Token</label><input className="form-input" type="number" value={tokenQuota} onChange={(e) => setTokenQuota(Number(e.target.value))} /><div className="form-hint">0 = tanpa batas</div></div>
+    <div className="form-group"><label className="form-label">Warna Brand</label><div style={{ display: 'flex', gap: 8, alignItems: 'center' }}><input type="color" value={colorInput} onChange={(e) => setBrandPrimaryColor(e.target.value)} style={{ width: 44, height: 36, padding: 2, border: '1px solid var(--border)', borderRadius: 6, background: 'none' }} /><input className="form-input" value={brandPrimaryColor} onChange={(e) => setBrandPrimaryColor(e.target.value)} /></div></div>
+    <div className="form-group"><label className="form-label">Email Admin</label><input className="form-input" type="email" value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} placeholder="admin@perusahaan.co.id" /></div>
   </FormShell>;
 }
 

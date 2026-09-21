@@ -2,7 +2,7 @@ import { NextRequest } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { db } from '@/lib/db';
 import { tenants, users } from '@/lib/db/schema';
-import { eq, isNull } from 'drizzle-orm';
+import { and, asc, eq, inArray } from 'drizzle-orm';
 import { requireSuperadmin, jsonOk, jsonError } from '@/lib/server';
 import { z } from 'zod';
 
@@ -12,7 +12,19 @@ export async function GET(req: NextRequest) {
   const trashed = req.nextUrl.searchParams.get('trashed') === '1';
   const rows = await db.select().from(tenants);
   const data = rows.filter((x) => (trashed ? x.deletedAt !== null : x.deletedAt === null));
-  return jsonOk(data);
+  const ids = data.map((t) => t.id);
+  const admins = ids.length > 0
+    ? await db
+        .select({ id: users.id, tenantId: users.tenantId, email: users.email, role: users.role })
+        .from(users)
+        .where(and(eq(users.role, 'admin'), inArray(users.tenantId, ids)))
+        .orderBy(asc(users.createdAt))
+    : [];
+  const adminEmailByTenant = new Map<string, string>();
+  for (const u of admins) {
+    if (!adminEmailByTenant.has(u.tenantId)) adminEmailByTenant.set(u.tenantId, u.email);
+  }
+  return jsonOk(data.map((row) => ({ ...row, admin_email: adminEmailByTenant.get(row.id) ?? null })));
 }
 
 const schema = z.object({
